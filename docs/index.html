@@ -4,63 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Queue Simulator — how many staff does a queue need?</title>
+<script src="kit-theme.js"></script>
+<link rel="stylesheet" href="kit.css">
 <style>
-  :root {
-    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --card: #f4f5f7;
-    --line: #d8dbe0; --accent: #0b5fa5; --bad: #b3261e; --good: #146c2e;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #14161a; --fg: #e8eaed; --muted: #a7adb5; --card: #1e2126;
-            --line: #363b42; --accent: #5aa9e6; --bad: #f28b82; --good: #7bc47f; }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-         background: var(--bg); color: var(--fg); line-height: 1.45; }
-  main { max-width: 960px; margin: 0 auto; padding: 16px; }
-  h1 { font-size: 1.5rem; margin: 8px 0 4px; }
-  h2 { font-size: 1.1rem; margin: 0 0 8px; }
-  .claim { font-size: 1.05rem; }
-  .muted { color: var(--muted); }
-  .card { background: var(--card); border: 1px solid var(--line);
-          border-radius: 10px; padding: 14px; margin: 14px 0; }
-  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-  .controls label { display: block; font-size: 0.9rem; }
-  .controls output { font-weight: 600; }
-  input[type="range"] { width: 100%; }
-  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  button { font: inherit; padding: 6px 12px; border-radius: 8px;
-           border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
-  button:hover { border-color: var(--accent); }
-  .servers { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-  .server { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line);
-            display: flex; align-items: center; justify-content: center; font-size: 0.72rem;
-            background: var(--bg); text-align: center; }
-  .server.busy { background: var(--accent); color: #fff; }
-  .queuedots { min-height: 30px; font-size: 1.15rem; letter-spacing: 2px; word-break: break-all; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-  .stat b { display: block; font-size: 1.25rem; }
-  .biganswer { font-size: 1.35rem; font-weight: 650; }
-  canvas { max-width: 100%; }
-  details { margin: 8px 0; }
-  summary { cursor: pointer; font-weight: 600; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; }
-  footer { color: var(--muted); font-size: 0.85rem; margin: 24px 0 8px; }
-  a { color: var(--accent); }
-  .warn { color: var(--bad); font-weight: 600; }
+  /* Tool-specific only (kit.css carries everything else): the live
+     queue dots and the staffing answer. Sizes use kit tokens. */
+  .queuedots { min-height: 30px; font-size: var(--fs-lede);
+               letter-spacing: 2px; word-break: break-all; }
+  .biganswer { font-size: var(--fs-lede); font-weight: 600; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <main>
-  <h1>How many staff does a queue need?</h1>
-  <p class="claim">The queueing formula (Erlang C) gives the staffing answer
-  in one line — <b>when its assumptions hold</b>. This page lets you staff a
-  call centre with the formula, then run the simulation and watch where the
-  two agree and where they part company.</p>
+  <header class="kit-header">
+    <div class="kit-header-top">
+      <p class="kit-kicker">Omid Golchin · learning tools</p>
+      <button class="kit-theme-toggle" type="button" data-kit-theme-toggle
+        aria-label="Toggle light/dark mode">◐ Theme</button>
+    </div>
+    <h1>Queue Simulator</h1>
+    <p class="kit-tagline">How many staff does a queue need? The queueing
+    formula (Erlang C) gives the staffing answer in one line,
+    <b>when its assumptions hold</b>. This page lets you staff a call
+    centre with the formula, then run the simulation and watch where the
+    two agree and where they part company.</p>
+  </header>
 
   <div class="card">
-    <h2>Try it: the queue, live</h2>
-    <div class="controls">
+    <h3>Try it: the queue, live</h3>
+    <div class="ctl-grid">
       <label>Arrival rate: <output id="o-lam">30</output> calls/hour
         <input type="range" id="in-lam" min="5" max="150" step="1" value="30"></label>
       <label>Average call length: <output id="o-svc">5</output> minutes
@@ -77,15 +50,15 @@
       <button data-preset="rush">Rush hour</button>
       <button id="btn-reset">Start / restart the day</button>
     </div>
-    <div class="muted" id="agents-label">4 agents idle; press Start to begin the day</div>
-    <div class="servers" id="servers"></div>
+    <div class="tiles-label" id="agents-label">4 agents idle; press Start to begin the day</div>
+    <div class="tiles" id="servers"></div>
     <div>Waiting: <span class="queuedots" id="queue"></span></div>
     <div class="stats">
-      <div class="stat"><b id="st-wait">–</b>simulated avg wait</div>
-      <div class="stat"><b id="st-over">–</b>simulated % over 20 s</div>
-      <div class="stat"><b id="st-aband">–</b>gave up</div>
-      <div class="stat"><b id="st-util">–</b>agent utilisation</div>
-      <div class="stat"><b id="st-fw">–</b>formula avg wait</div>
+      <div class="stat"><span class="value" id="st-wait">–</span><span class="label">simulated avg wait</span></div>
+      <div class="stat"><span class="value" id="st-over">–</span><span class="label">simulated % over 20 s</span></div>
+      <div class="stat"><span class="value" id="st-aband">–</span><span class="label">gave up</span></div>
+      <div class="stat"><span class="value" id="st-util">–</span><span class="label">agent utilisation</span></div>
+      <div class="stat"><span class="value" id="st-fw">–</span><span class="label">formula avg wait</span></div>
     </div>
     <p class="muted" id="sim-note">The simulation runs in your browser
     (exponential calls, Poisson arrivals). The formula assumes callers
@@ -94,7 +67,7 @@
   </div>
 
   <div class="card">
-    <h2>The staffing question</h2>
+    <h3>The staffing question</h3>
     <p class="biganswer" id="staffing">–</p>
     <p class="muted">The classic target: answer 80% of calls within
     20 seconds. Answered with Erlang C, live, for the settings above —
@@ -107,12 +80,12 @@
         <option value="busy">Busy help line — 120 calls/hour, 3-minute calls</option>
       </select>
     </label>
-    <canvas id="chart" height="220"></canvas>
-    <p class="muted" id="chart-note"></p>
+    <div class="chart"><canvas id="chart"></canvas></div>
+    <p class="chart-caption" id="chart-note"></p>
   </div>
 
   <div class="card">
-    <h2>Can an LLM do this instead?</h2>
+    <h3>Can an LLM do this instead?</h3>
     <p id="llm-intro">Fifteen queue scenarios were put to several
     open-weight models three ways: estimate directly, write code and run
     it, and simulate 20 customers by hand, event by event. Ground truth:
@@ -122,7 +95,7 @@
   </div>
 
   <div class="card">
-    <h2>Why one long run is not enough</h2>
+    <h3>Why one long run is not enough</h3>
     <p>Every simulated number here comes from independent replications
     with a warm-up period and a confidence interval — not from a single
     long run. Queues are autocorrelated: one busy hour colours the next,
@@ -162,7 +135,17 @@
     </details>
   </div>
 
-  <footer>
+  <footer class="kit-footer">
+    <nav class="kit-siblings" aria-label="More tools">
+      <span class="kit-siblings-label">More tools:</span>
+      <a href="https://omidgolchin.github.io/experiment-hazard-simulator/">Experiment Hazard Simulator</a> ·
+      <a href="https://omidgolchin.github.io/bayesian-ab-lab/">Bayesian A/B Lab</a> ·
+      <a href="https://omidgolchin.github.io/queue-simulator/" aria-current="page">Queue Simulator</a>
+    </nav>
+    <p>Built by Omid Golchin. Shared design:
+      <a href="https://github.com/omidgolchin/omid-tools-kit">omid-tools-kit</a>.</p>
+  </footer>
+  <p class="muted small">
     Built to learn queueing by building it. Code and full write-up:
     <a href="../README.md">queue-simulator</a> (repository link goes here
     when published). References: Law, <i>Simulation Modeling and
@@ -171,10 +154,10 @@
     Little (1961), “A Proof for the Queuing Formula: L = λW”,
     <i>Operations Research</i> 9(3); SimPy documentation. Arrival-day
     shape: NYC 311 open data (January 2024), used for hourly rates only.
-  </footer>
+  </p>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="qsim.js"></script>
+<script src="kit-chart.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
