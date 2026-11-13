@@ -1,0 +1,326 @@
+/* omid-tools-kit — shared styles for Omid Golchin's learning tools.
+ *
+ * Framework-free plain CSS. Copy this file into a tool's docs/ folder and
+ * link it; see README.md for the integration steps.
+ *
+ * Design: quiet, academic, print-like. One accent colour, hairline rules,
+ * a small corner radius, no gradients, no shadows. System font stacks only,
+ * so every page works offline and from file://.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Tokens                                                              */
+/* ------------------------------------------------------------------ */
+
+:root {
+  /* Colour — light theme */
+  --bg: #fcfcfa;          /* page background: paper white */
+  --card: #ffffff;        /* raised surface: cards, inputs */
+  --sunken: #f3f3ef;      /* recessed surface: callouts, table header */
+  --fg: #1b1b18;          /* main text */
+  --muted: #5d5d57;       /* secondary text, axis ticks, captions */
+  --border: #dbdbd3;      /* hairlines, card and input borders */
+  --accent: #0b5fa5;      /* the one accent: links, primary buttons, series 1 */
+  --accent-fg: #ffffff;   /* text on the accent */
+  --accent-soft: #e8eff6; /* accent tint: chips, selected rows */
+  --series-2: #b26a00;    /* chart series 2: ochre */
+  --neutral: #767c84;     /* chart comparison series: grey */
+  --bad: #b3261e;         /* warnings, false positives, danger callouts */
+  --good: #1e6b30;        /* passes, fixes, good callouts */
+  --grid: #e4e4dc;        /* chart gridlines */
+
+  /* Type — system stacks only, no webfonts */
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino,
+    Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --fs-caption: 0.8125rem;  /* 13px: ticks, footer, tile labels */
+  --fs-small: 0.875rem;     /* 14px: labels, tables, secondary text */
+  --fs-body: 1rem;          /* 16px */
+  --fs-lede: 1.0625rem;     /* 17px: claim / tagline paragraphs */
+  --fs-h3: 1.0625rem;       /* 17px, sans, semibold */
+  --fs-h2: 1.25rem;         /* 20px, serif */
+  --fs-h1: 1.625rem;        /* 26px, serif */
+  --fs-stat: 1.75rem;       /* 28px: stat tile values */
+
+  /* Spacing — 4px base */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.5rem; --sp-6: 2rem; --sp-7: 3rem;
+
+  /* Shape and layout */
+  --radius: 4px;      /* cards, buttons, inputs — the only large radius */
+  --radius-s: 2px;    /* chips, legend swatches, tiles */
+  --wrap: 64rem;      /* 1024px page column */
+  --chart-h: 300px;   /* the standard chart height on desktop */
+}
+
+/* Dark theme — same hues, lifted for a dark page */
+:root[data-theme="dark"] {
+  --bg: #131417; --card: #1a1c1f; --sunken: #0e0f11;
+  --fg: #e9e9e4; --muted: #a4a49c; --border: #34363c;
+  --accent: #5aa9e6; --accent-fg: #0d1117; --accent-soft: #1d2c3a;
+  --series-2: #d99a35; --neutral: #9aa1ab;
+  --bad: #e88a80; --good: #84b97c; --grid: #2b2d33;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131417; --card: #1a1c1f; --sunken: #0e0f11;
+    --fg: #e9e9e4; --muted: #a4a49c; --border: #34363c;
+    --accent: #5aa9e6; --accent-fg: #0d1117; --accent-soft: #1d2c3a;
+    --series-2: #d99a35; --neutral: #9aa1ab;
+    --bad: #e88a80; --good: #84b97c; --grid: #2b2d33;
+  }
+}
+
+@media (max-width: 720px) {
+  :root { --chart-h: 240px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+
+main, .kit-wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--sp-4) var(--sp-6);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: var(--sp-2) 0 var(--sp-2);
+}
+h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: var(--sp-5) 0 var(--sp-2);
+}
+h3 {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 var(--sp-2);
+}
+p { margin: var(--sp-2) 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.lede, .claim { font-size: var(--fs-lede); line-height: 1.5; max-width: 68ch; }
+.muted { color: var(--muted); }
+.small { font-size: var(--fs-small); }
+.num { font-variant-numeric: tabular-nums; }
+.bad-text { color: var(--bad); }
+.good-text { color: var(--good); }
+.warn { color: var(--bad); font-weight: 600; }
+.hidden { display: none; }
+
+/* ------------------------------------------------------------------ */
+/* Header and footer (markup in snippets/)                             */
+/* ------------------------------------------------------------------ */
+
+.kit-header { border-bottom: 1px solid var(--border); padding: var(--sp-5) 0 var(--sp-4); }
+.kit-header-top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: var(--sp-3);
+}
+.kit-kicker {
+  font-size: var(--fs-caption); letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--muted); margin: 0;
+}
+.kit-header h1 { margin-top: var(--sp-3); }
+.kit-tagline { font-size: var(--fs-lede); line-height: 1.5; color: var(--muted); max-width: 68ch; margin: 0; }
+
+.kit-footer {
+  border-top: 1px solid var(--border);
+  color: var(--muted); font-size: var(--fs-small);
+  margin-top: var(--sp-6); padding: var(--sp-4) 0 var(--sp-5);
+}
+.kit-siblings { margin: 0 0 var(--sp-2); }
+.kit-siblings-label { font-weight: 600; color: var(--fg); }
+.kit-siblings a[aria-current="page"] {
+  color: var(--fg); font-weight: 600; text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons, controls                                                   */
+/* ------------------------------------------------------------------ */
+
+button, .btn {
+  font: inherit; font-size: var(--fs-small);
+  cursor: pointer;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); color: var(--fg);
+  padding: 6px 12px;
+}
+button:hover, .btn:hover { border-color: var(--accent); }
+button.active, .btn.active,
+button[aria-pressed="true"]:not(.kit-theme-toggle) {
+  background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
+}
+.btn-primary, button.primary {
+  background: var(--accent); color: var(--accent-fg); border-color: var(--accent);
+  font-weight: 600; padding: 8px 18px; font-size: var(--fs-body);
+}
+.btn-row, .presets { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-2) 0; }
+
+.kit-theme-toggle { font-size: var(--fs-small); white-space: nowrap; }
+
+/* One control row: label, slider, value (the hazard simulator pattern) */
+.ctl { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); flex-wrap: wrap; }
+.ctl label { font-size: var(--fs-small); }
+.ctl output { font-weight: 600; min-width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; }
+.ctl input[type="range"] { flex: 1; min-width: 110px; }
+
+/* A grid of stacked-label controls (the queue simulator pattern) */
+.ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-3); }
+.ctl-grid label { display: block; font-size: var(--fs-small); }
+.ctl-grid output { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ctl-grid input[type="range"] { width: 100%; }
+
+input[type="range"] { accent-color: var(--accent); height: 1.4em; }
+input[type="checkbox"] { width: 1.1em; height: 1.1em; accent-color: var(--accent); }
+input[type="number"], input[type="text"], select {
+  font: inherit; font-size: var(--fs-small);
+  color: var(--fg); background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 6px 8px; max-width: 100%;
+}
+label { font-size: var(--fs-small); }
+
+/* Toggle switch: a real checkbox, styled. <label class="switch">
+   <input type="checkbox"> <span class="track"></span> Label text </label> */
+.switch { display: inline-flex; align-items: center; gap: var(--sp-2); cursor: pointer; font-size: var(--fs-small); }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch .track {
+  flex: none; width: 34px; height: 19px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--sunken); position: relative;
+}
+.switch .track::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--muted);
+}
+.switch input:checked + .track { background: var(--accent); border-color: var(--accent); }
+.switch input:checked + .track::after { left: 17px; background: var(--accent-fg); }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* Tabs (the A/B lab pattern, squared): text tabs with an accent rule */
+.tabs { display: flex; flex-wrap: wrap; gap: var(--sp-4); border-bottom: 1px solid var(--border); margin-top: var(--sp-4); }
+.tabs button {
+  border: none; border-bottom: 2px solid transparent; border-radius: 0;
+  background: none; padding: 6px 2px; font-size: var(--fs-small); color: var(--muted);
+}
+.tabs button:hover { color: var(--fg); border-color: var(--muted); }
+.tabs button.active {
+  background: none; color: var(--fg); font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards, stat tiles, callouts                                         */
+/* ------------------------------------------------------------------ */
+
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: var(--sp-4);
+  margin: var(--sp-3) 0;
+}
+.card > p { color: var(--muted); font-size: var(--fs-small); }
+.card > p strong, .card > p b { color: var(--fg); }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--sp-3); margin: var(--sp-3) 0; }
+.stat .value, .stat .big {
+  display: block; font-size: var(--fs-stat); font-weight: 700; line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.stat .label, .stat .lbl { color: var(--muted); font-size: var(--fs-small); }
+.stat-center { text-align: center; }
+
+/* Callout: a ruled note. --bad for the honest warning, --good for the fix. */
+.callout, blockquote {
+  margin: var(--sp-2) 0; padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--accent);
+  background: var(--sunken); border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: var(--fs-small);
+}
+.callout--bad { border-left-color: var(--bad); }
+.callout--good { border-left-color: var(--good); }
+blockquote { font-size: var(--fs-body); }
+
+.chip {
+  display: inline-block; background: var(--accent-soft);
+  border: 1px solid var(--border); border-radius: var(--radius-s);
+  padding: 2px 8px; font-weight: 600; font-size: var(--fs-small);
+}
+.tag {
+  display: inline-block; font-size: var(--fs-caption);
+  padding: 1px 7px; border-radius: var(--radius-s);
+  background: var(--sunken); border: 1px solid var(--border); color: var(--muted);
+}
+
+/* Agent tiles (the queue simulator pattern): one tile per agent */
+.tiles { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--sp-2) 0; }
+.tile {
+  width: 44px; height: 44px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-caption); text-align: center; color: var(--muted);
+}
+.tile--busy, .tile.busy { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.tiles-label { color: var(--muted); font-size: var(--fs-small); }
+
+/* ------------------------------------------------------------------ */
+/* Tables                                                              */
+/* ------------------------------------------------------------------ */
+
+table { border-collapse: collapse; width: 100%; font-size: var(--fs-small); }
+th, td { border-bottom: 1px solid var(--border); padding: 5px 8px; text-align: left; vertical-align: top; }
+th { font-weight: 600; color: var(--muted); border-bottom-width: 2px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-scroll { overflow-x: auto; }
+
+details { margin: var(--sp-2) 0; }
+summary { cursor: pointer; font-weight: 600; }
+
+/* ------------------------------------------------------------------ */
+/* Charts                                                              */
+/* ------------------------------------------------------------------ */
+
+/* Standard chart box: same height in every tool, both renderers. */
+.chart { position: relative; height: var(--chart-h); }
+.chart canvas { display: block; width: 100%; height: 100%; }
+.chart-caption { color: var(--muted); font-size: var(--fs-small); margin-top: var(--sp-2); }
+
+/* In-page legend for canvas charts (line swatches, like print) */
+.legend { display: flex; flex-wrap: wrap; gap: var(--sp-4); font-size: var(--fs-small); color: var(--muted); margin: var(--sp-2) 0; }
+.legend-swatch { display: inline-block; width: 22px; height: 0; border-top: 2px solid var(--neutral); vertical-align: middle; margin-right: 6px; }
+.legend-swatch--dash { border-top-style: dashed; }
+.legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: var(--radius-s); background: var(--neutral); vertical-align: baseline; margin-right: 6px; }
+
+/* ------------------------------------------------------------------ */
+
+@media print {
+  :root { --bg: #ffffff; --card: #ffffff; }
+  .kit-theme-toggle, .tabs { display: none; }
+}
