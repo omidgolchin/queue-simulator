@@ -1,0 +1,28 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Tests (no API calls)
+        run: PYTHONPATH=src python -m pytest tests/ -q
+      - name: Smoke test - formulas and checker
+        run: |
+          PYTHONPATH=src python -c "
+          from queuesim.erlang import mmc
+          from queuesim.simulate import compute_waits
+          r = mmc(0.5, 0.2, 4)
+          assert abs(r.p_wait - 0.3199) < 0.001, r
+          assert abs(r.mean_wait_q - 1.0662) < 0.01, r
+          out = compute_waits([0, 1, 2, 3, 10], [5, 5, 5, 5, 2], 2)
+          assert [o.wait for o in out] == [0, 0, 3, 3, 0]
+          print('smoke ok')
+          "
