@@ -184,7 +184,7 @@
   function frame(env, opts, ext) {
     var ctx = env.ctx, W = env.W, H = env.H, p = env.p;
     var rows = ext.legendRows || 0;
-    var padL = opts.yTitle ? 60 : 46, padR = 10;
+    var padL = opts.yTitle ? 60 : 46, padR = ext.padR != null ? ext.padR : 10;
     var padT = 8 + rows * 20, padB = opts.xTitle ? 42 : 28;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     function X(v) { return padL + (v - ext.x0) / (ext.x1 - ext.x0) * plotW; }
@@ -262,11 +262,18 @@
     };
     ext.legendRows = ext.legend ? legendRows(series, env.W) : 0;
     if (!ext.legend) ext.legend = [];
+    var xd = opts.xDigits;
+    if (xd == null) xd = (ext.x1 - ext.x0) % 1 === 0 && ext.x1 - ext.x0 <= 30 ? 0 : 1;
+    /* The last x tick label is centred on the final point, so half of
+     * it would fall past the plot's right edge and clip (seen on the
+     * A/B Lab peeking chart, whose final tick "40.0" was cut off).
+     * Reserve exactly the room that half-label needs; charts whose
+     * last label is short keep the usual 10px. */
+    ext.padR = Math.max(10,
+      Math.ceil(ctx.measureText(ext.x1.toFixed(xd)).width / 2) + 2);
     var f = frame(env, opts, ext);
     /* x tick labels: at most 6, evenly spaced over the range */
     ctx.fillStyle = env.p.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
-    var xd = opts.xDigits;
-    if (xd == null) xd = (ext.x1 - ext.x0) % 1 === 0 && ext.x1 - ext.x0 <= 30 ? 0 : 1;
     for (var i = 0; i <= 5; i++) {
       var xv = ext.x0 + (ext.x1 - ext.x0) * i / 5;
       ctx.fillText(xv.toFixed(xd), f.X(xv), f.Y(ext.y0) + 6);
