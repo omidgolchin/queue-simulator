@@ -78,12 +78,23 @@ function formulaPanel() {
 
 function renderSim() {
   const s = sim.stats();
+  const busy = sim.serving.filter(Boolean).length;
+  const label = $("agents-label");
+  if (s.arrivals === 0 && busy === 0) {
+    // Before the first call the tiles alone read as a glitch; say
+    // plainly that this is the idle state and how the day starts.
+    label.textContent =
+      `${sim.servers} agents idle; press Start to begin the day`;
+  } else {
+    label.textContent =
+      `${sim.servers} agents: ${busy} on a call, ${sim.servers - busy} idle`;
+  }
   const srv = $("servers");
   srv.innerHTML = "";
   for (let i = 0; i < sim.servers; i++) {
     const d = document.createElement("div");
     d.className = "server" + (sim.serving[i] ? " busy" : "");
-    d.textContent = sim.serving[i] ? "on a call" : "free";
+    d.textContent = sim.serving[i] ? "on a call" : "idle";
     srv.appendChild(d);
   }
   $("queue").textContent = "●".repeat(Math.min(s.queueLen, 120)) +
@@ -109,32 +120,108 @@ function tick(ts) {
 let chartData = null;
 
 function drawFallbackChart(canvas, pts) {
+  /* Hand-drawn version used when the Chart.js CDN is unreachable.
+   * Draws the same chart: y-axis values and label, gridlines, error
+   * bars on the simulation points, a line-swatch legend, and the
+   * x-axis title below the tick labels, clear of them. */
   const ctx = canvas.getContext("2d");
   const W = canvas.width = canvas.clientWidth * 2;
   const H = canvas.height = 440;
-  ctx.scale(1, 1);
   ctx.clearRect(0, 0, W, H);
-  const maxY = Math.max(...pts.map((p) => Math.max(p.sim_wait_min, p.formula_wait_min))) * 1.15;
+  const L = 100, R = 28, T = 78, B = 84; // margins: left, right, top, bottom
+  const plotW = W - L - R, plotH = H - T - B;
+  const maxY = Math.max(...pts.map((p) =>
+    Math.max(p.sim_wait_min + (p.sim_wait_ci_half || 0),
+             p.formula_wait_min))) * 1.12;
   const minX = Math.min(...pts.map((p) => p.servers));
   const maxX = Math.max(...pts.map((p) => p.servers));
-  const X = (c) => 70 + (c - minX) / (maxX - minX) * (W - 110);
-  const Y = (v) => H - 50 - (v / maxY) * (H - 90);
-  ctx.strokeStyle = "#888"; ctx.fillStyle = "#888"; ctx.font = "20px system-ui";
-  ctx.beginPath(); ctx.moveTo(70, 20); ctx.lineTo(70, H - 50); ctx.lineTo(W - 30, H - 50); ctx.stroke();
-  const line = (key, color) => {
-    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.beginPath();
+  const X = (c) => L + (c - minX) / (maxX - minX) * plotW;
+  const Y = (v) => T + plotH - (v / maxY) * plotH;
+  ctx.font = "20px system-ui";
+  // y gridlines, tick values and axis label
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let i = 0; i <= 4; i++) {
+    const v = maxY * i / 4, y = Y(v);
+    ctx.strokeStyle = "rgba(136,136,136,0.35)"; ctx.beginPath();
+    ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke();
+    ctx.fillStyle = "#888";
+    ctx.fillText(v.toFixed(1), L - 10, y);
+  }
+  ctx.save();
+  ctx.translate(26, T + plotH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center"; ctx.fillStyle = "#888";
+  ctx.fillText("average wait (min)", 0, 0);
+  ctx.restore();
+  // axes
+  ctx.strokeStyle = "#888"; ctx.beginPath();
+  ctx.moveTo(L, T); ctx.lineTo(L, T + plotH); ctx.lineTo(W - R, T + plotH);
+  ctx.stroke();
+  // x tick labels, then the axis title on its own line below them
+  ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillStyle = "#888";
+  pts.forEach((p) => ctx.fillText(String(p.servers), X(p.servers), T + plotH + 8));
+  ctx.fillText("agents →", L + plotW / 2, T + plotH + 38);
+  // the two lines, with 95% CI error bars on the simulation points
+  const line = (key, color, dashed) => {
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.setLineDash(dashed || []); ctx.beginPath();
     pts.forEach((p, i) => { const x = X(p.servers), y = Y(p[key]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-    ctx.stroke();
+    ctx.stroke(); ctx.setLineDash([]);
     pts.forEach((p) => { ctx.beginPath(); ctx.arc(X(p.servers), Y(p[key]), 5, 0, 7); ctx.fill(); });
   };
-  line("formula_wait_min", "#b3261e");
+  line("formula_wait_min", "#b3261e", [7, 5]);
   line("sim_wait_min", "#0b5fa5");
-  ctx.fillStyle = "#0b5fa5"; ctx.fillText("● simulation (Python, 20 reps)", 80, 30);
-  ctx.fillStyle = "#b3261e"; ctx.fillText("● Erlang C formula", 80, 58);
-  ctx.fillStyle = "#888";
-  pts.forEach((p) => ctx.fillText(String(p.servers), X(p.servers) - 5, H - 22));
-  ctx.fillText("agents →", W - 130, H - 40);
+  ctx.strokeStyle = "#0b5fa5"; ctx.lineWidth = 2;
+  pts.forEach((p) => {
+    const h = p.sim_wait_ci_half || 0, x = X(p.servers);
+    if (!h) return;
+    ctx.beginPath();
+    ctx.moveTo(x - 6, Y(p.sim_wait_min + h)); ctx.lineTo(x + 6, Y(p.sim_wait_min + h));
+    ctx.moveTo(x, Y(p.sim_wait_min + h)); ctx.lineTo(x, Y(p.sim_wait_min - h));
+    ctx.moveTo(x - 6, Y(p.sim_wait_min - h)); ctx.lineTo(x + 6, Y(p.sim_wait_min - h));
+    ctx.stroke();
+  });
+  ctx.lineWidth = 1;
+  // legend: one entry per row in the top margin, so both entries fit
+  // even on a narrow (phone-width) canvas
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  const legend = (y, color, dashed, text) => {
+    ctx.strokeStyle = color; ctx.setLineDash(dashed || []);
+    ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + 44, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = color;
+    ctx.fillText(text, L + 54, y);
+  };
+  legend(20, "#0b5fa5", null, "simulation (Python, 20 reps, error bars = 95% CI)");
+  legend(48, "#b3261e", [7, 5], "Erlang C formula");
 }
+
+/* Chart.js has no built-in error bars; this plugin draws the 95% CI
+ * whiskers for dataset 0 (the simulation points) from chart.$ciHalf,
+ * so the caption's "error bars = 95% CI" is what the chart shows. */
+const ciErrorBarPlugin = {
+  id: "ciErrorBars",
+  afterDatasetsDraw(chart) {
+    const halves = chart.$ciHalf;
+    if (!halves) return;
+    const meta = chart.getDatasetMeta(0);
+    const { ctx, scales } = chart;
+    ctx.save();
+    ctx.strokeStyle = "#0b5fa5"; ctx.lineWidth = 1.5;
+    meta.data.forEach((pt, i) => {
+      const h = halves[i];
+      if (!h) return;
+      const v = chart.data.datasets[0].data[i];
+      const yTop = scales.y.getPixelForValue(v + h);
+      const yBot = scales.y.getPixelForValue(v - h);
+      ctx.beginPath();
+      ctx.moveTo(pt.x - 4, yTop); ctx.lineTo(pt.x + 4, yTop);
+      ctx.moveTo(pt.x, yTop); ctx.lineTo(pt.x, yBot);
+      ctx.moveTo(pt.x - 4, yBot); ctx.lineTo(pt.x + 4, yBot);
+      ctx.stroke();
+    });
+    ctx.restore();
+  },
+};
 
 function drawChart() {
   if (!chartData) return;
@@ -156,14 +243,22 @@ function drawChart() {
           { label: "Erlang C formula", data: pts.map((p) => p.formula_wait_min), borderColor: "#b3261e", backgroundColor: "#b3261e", borderDash: [5, 4] },
         ],
       },
+      plugins: [ciErrorBarPlugin],
       options: {
         responsive: true,
+        plugins: {
+          legend: { labels: { boxWidth: 12, boxHeight: 2,
+                              font: { size: 11 } } },
+        },
         scales: {
           x: { title: { display: true, text: "agents" } },
-          y: { title: { display: true, text: "average wait (min)" } },
+          y: { beginAtZero: true,
+               title: { display: true, text: "average wait (min)" } },
         },
       },
     });
+    canvas._chart.$ciHalf = pts.map((p) => p.sim_wait_ci_half);
+    canvas._chart.update();
   } else {
     drawFallbackChart(canvas, pts);
   }

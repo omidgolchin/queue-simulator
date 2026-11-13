@@ -1,27 +1,33 @@
 # Queue simulator: how many staff does a queue need?
 
-A call centre, a bank, a clinic desk — callers arrive at random, each
-call takes a random time, and a small team answers. How many people do
-you need so that waits stay acceptable? I built this to learn
-discrete-event simulation properly: build the simulator, check it
-against the queueing formulas it should reproduce, use it where the
-formulas stop working — and then check whether an LLM can do the same
-jobs.
+A discrete-event queue simulator (SimPy) with the Erlang C staffing
+formulas built in, made to answer one question: how many staff does a
+queue need? Its sharpest result: staffing for the *average* hour of a
+real-shaped service day leaves 41.4% of rush-hour callers waiting over
+20 seconds.
+
+I built this to learn discrete-event simulation properly: build the
+simulator, check it against the queueing formulas it should reproduce,
+use it where the formulas stop working, and then check whether an LLM
+can do the same jobs. The setting throughout is a call centre, a bank,
+a clinic desk: callers arrive at random, each call takes a random
+time, and a small team answers.
 
 ## The result
 
 The SimPy simulator reproduces Erlang C: across 12 M/M/c settings
 (1–10 servers, utilisation 0.5–0.95, 16 replications each) the
 formula's value falls inside the simulation's 95% confidence interval
-in 12 of 12 settings, and Little's law holds within 0.2% in the runs'
+in 12 of 12 settings, and Little's law holds within 0.12% in the runs'
 own counters. Where the formula's assumptions break, it misleads in
 specific ways: with very variable (lognormal, CV 2) call lengths the
 true average wait is 2.05 min where Erlang C says 1.07; with impatient
-callers at ρ = 0.95 the wait collapses from 26.9 min to 1.3 min
-because 15% of callers hang up — an effect the formula cannot see; and
-on a day shaped like real arrival data (NYC 311), staffing for the
-*average* hour leaves 41% of callers waiting over 20 seconds in the
-rush, with day-average waits ten times the formula's prediction. The
+callers at ρ = 0.95 the served callers' wait falls to 1.3 min because
+14.7% of callers hang up, an effect the formula cannot see (with no
+abandonment the simulation gives 26.9 min and the formula 26.3 min);
+and on a day shaped like real arrival data (NYC 311), staffing for
+the *average* hour leaves 41.4% of callers waiting over 20 seconds in
+the rush, with day-average waits ten times the formula's prediction. The
 LLM check (15 scenarios × 3 modes × 3 models): asked directly, all
 three models were close on 9 of 15 scenarios — fine where the formula
 applies, weak where it breaks (1–2 of the 5 beyond-formula cases);
@@ -40,10 +46,10 @@ The playground is in [`docs/`](docs/index.html) (open it with any
 static server, e.g. `python3 -m http.server` inside `docs/`). Sliders
 set the arrival rate, call length, agents and caller patience; a small
 JavaScript twin of the simulator runs the queue live while Erlang C
-answers the staffing question beside it — "how many agents to answer
+answers the staffing question beside it: "how many agents to answer
 80% of calls within 20 seconds?" The wait-vs-servers chart is
 precomputed from the Python simulator (20 replications per point),
-and the page states plainly how the LLMs did. The JavaScript and
+and the page shows how the LLMs did. The JavaScript and
 Python implementations are checked against each other on fixed cases
 (`scripts/check_js.py`); screenshots are in `docs/screenshots/`.
 
@@ -89,7 +95,7 @@ make test        # the test suite
   quietest). The spec's first choice, the Technion SEE Lab bank data,
   is registration-gated and was not used; see `DATA_SOURCES.md` and
   `DECISIONS.md`.
-- **LLM check**: 15 scenarios — 5 where Erlang C applies directly, 5
+- **LLM check**: 15 scenarios: 5 where Erlang C applies directly, 5
   traps where it applies only after a unit conversion or a derived
   arrival rate, 5 where it does not apply (variable service,
   abandonment, rush hours, an overloaded centre, priority classes).
@@ -103,11 +109,30 @@ make test        # the test suite
   was frozen (`FREEZE_MANIFEST.txt`) before the main run. Total model
   spend: $0.38 of the $5 cap (`SPEND.md`).
 
+## What I learned
+
+- The spread of call lengths matters as much as the average. At the
+  same average call length, very variable calls (CV 2) more than
+  doubled the wait. I now distrust any staffing table that quotes
+  only averages.
+- My first hand-simulation test instances were useless: drawn from an
+  empty system, most had nobody waiting at all, so they tested no
+  state tracking. The instance rule had to change (take a busy
+  20-customer window from a longer stream) before the plan could
+  freeze.
+- For the overloaded centre I nearly scored models against a
+  finite-day average wait. There is no steady state there, so the
+  only right answer is to say so, and the check now scores exactly
+  that.
+- The standard bank call-centre dataset is registration-gated, so I
+  used NYC 311 counts for the shape of a day instead. Only the shape
+  is borrowed, and the write-up has to keep saying so.
+
 ## Limitations
 
 One queue, identical servers, no skills-based routing; the staffing
 tool's world is the M/M/c world plus the four demonstrated exceptions.
-Arrival and service distributions are stylised — the NYC 311 profile
+Arrival and service distributions are stylised. The NYC 311 profile
 lends a realistic *shape* to the day, but 311 requests are not calls
 to one centre, and no real call-length distribution was available
 under a usable licence. Waiting-time statistics count served callers;
