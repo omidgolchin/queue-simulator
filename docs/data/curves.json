@@ -1,0 +1,343 @@
+{
+ "presets": {
+  "desk": {
+   "label": "Support desk",
+   "lam_h": 30.0,
+   "service_min": 5.0,
+   "staffing_80_20": 5,
+   "points": [
+    {
+     "servers": 3,
+     "sim_wait_min": 6.822722210249632,
+     "sim_wait_ci_half": 0.7624929638660795,
+     "sim_pct_over_20s": 67.27656609712598,
+     "formula_wait_min": 7.022471910112354,
+     "formula_pct_over_20s": 67.922478966433
+    },
+    {
+     "servers": 4,
+     "sim_wait_min": 1.0521225756265182,
+     "sim_wait_ci_half": 0.10749681103957613,
+     "sim_pct_over_20s": 28.219785703577383,
+     "formula_wait_min": 1.0661890139883996,
+     "formula_pct_over_20s": 28.94183143666707
+    },
+    {
+     "servers": 5,
+     "sim_wait_min": 0.2567030977719943,
+     "sim_wait_ci_half": 0.033171639591017404,
+     "sim_pct_over_20s": 10.97027096300762,
+     "formula_wait_min": 0.2607425949103046,
+     "formula_pct_over_20s": 11.035692074606466
+    },
+    {
+     "servers": 6,
+     "sim_wait_min": 0.06586171047984951,
+     "sim_wait_ci_half": 0.010595628321371666,
+     "sim_pct_over_20s": 3.7324256447780106,
+     "formula_wait_min": 0.06777830313493628,
+     "formula_pct_over_20s": 3.7571051753597344
+    },
+    {
+     "servers": 7,
+     "sim_wait_min": 0.01470162147458041,
+     "sim_wait_ci_half": 0.0026256649374852086,
+     "sim_pct_over_20s": 1.00752488914233,
+     "formula_wait_min": 0.017159419296697724,
+     "formula_pct_over_20s": 1.144080942418003
+    },
+    {
+     "servers": 8,
+     "sim_wait_min": 0.0031603652657394158,
+     "sim_wait_ci_half": 0.0006832043870121533,
+     "sim_pct_over_20s": 0.26645855819427955,
+     "formula_wait_min": 0.00410657673902263,
+     "formula_pct_over_20s": 0.31306269386092805
+    },
+    {
+     "servers": 9,
+     "sim_wait_min": 0.000662620060221906,
+     "sim_wait_ci_half": 0.0002749018179144756,
+     "sim_pct_over_20s": 0.06898029712671866,
+     "formula_wait_min": 0.0009190157582684529,
+     "formula_pct_over_20s": 0.07745902660139317
+    },
+    {
+     "servers": 10,
+     "sim_wait_min": 0.00011925544036256355,
+     "sim_wait_ci_half": 0.00010267814522129955,
+     "sim_pct_over_20s": 0.013030663935838729,
+     "formula_wait_min": 0.0001917537480386402,
+     "formula_pct_over_20s": 0.017445679095036977
+    }
+   ]
+  },
+  "bank": {
+   "label": "Bank call centre",
+   "lam_h": 60.0,
+   "service_min": 4.0,
+   "staffing_80_20": 7,
+   "points": [
+    {
+     "servers": 5,
+     "sim_wait_min": 2.1468914005216955,
+     "sim_wait_ci_half": 0.25333540613720235,
+     "sim_pct_over_20s": 50.57204152051773,
+     "formula_wait_min": 2.2164502164502173,
+     "formula_pct_over_20s": 50.98081604872443
+    },
+    {
+     "servers": 6,
+     "sim_wait_min": 0.5568263969817984,
+     "sim_wait_ci_half": 0.06783022154162649,
+     "sim_pct_over_20s": 23.56655377938564,
+     "formula_wait_min": 0.5695216907675195,
+     "formula_pct_over_20s": 24.10448515817544
+    },
+    {
+     "servers": 7,
+     "sim_wait_min": 0.16740199174142611,
+     "sim_wait_ci_half": 0.02117261479630548,
+     "sim_pct_over_20s": 9.949634941270025,
+     "formula_wait_min": 0.1801468971280292,
+     "formula_pct_over_20s": 10.52239084133947
+    },
+    {
+     "servers": 8,
+     "sim_wait_min": 0.055774078318401255,
+     "sim_wait_ci_half": 0.00906790304178551,
+     "sim_pct_over_20s": 3.9800745893568816,
+     "formula_wait_min": 0.05904399469526611,
+     "formula_pct_over_20s": 4.230687090051088
+    },
+    {
+     "servers": 9,
+     "sim_wait_min": 0.018786886683179967,
+     "sim_wait_ci_half": 0.0042303014365912255,
+     "sim_pct_over_20s": 1.5369430326000915,
+     "formula_wait_min": 0.019006299084718625,
+     "formula_pct_over_20s": 1.566215573298503
+    },
+    {
+     "servers": 10,
+     "sim_wait_min": 0.005965419268937818,
+     "sim_wait_ci_half": 0.002102319968804633,
+     "sim_pct_over_20s": 0.5258466175356905,
+     "formula_wait_min": 0.0058764833780597416,
+     "formula_pct_over_20s": 0.534640101012735
+    },
+    {
+     "servers": 11,
+     "sim_wait_min": 0.00185156619345125,
+     "sim_wait_ci_half": 0.0008922600391894145,
+     "sim_pct_over_20s": 0.19715860922518016,
+     "formula_wait_min": 0.0017278368527173312,
+     "formula_pct_over_20s": 0.16873389574527067
+    },
+    {
+     "servers": 12,
+     "sim_wait_min": 0.0005005086252461287,
+     "sim_wait_ci_half": 0.0003428332542580761,
+     "sim_pct_over_20s": 0.06155580575062691,
+     "formula_wait_min": 0.0004811116121385304,
+     "formula_pct_over_20s": 0.049402187567458025
+    }
+   ]
+  },
+  "busy": {
+   "label": "Busy help line",
+   "lam_h": 120.0,
+   "service_min": 3.0,
+   "staffing_80_20": 9,
+   "points": [
+    {
+     "servers": 7,
+     "sim_wait_min": 1.653189543421035,
+     "sim_wait_ci_half": 0.23049543467375477,
+     "sim_pct_over_20s": 53.481808440511514,
+     "formula_wait_min": 1.8414903694347977,
+     "formula_pct_over_20s": 54.92793280350915
+    },
+    {
+     "servers": 8,
+     "sim_wait_min": 0.48394229556357204,
+     "sim_wait_ci_half": 0.05841391349344703,
+     "sim_pct_over_20s": 27.392837068642706,
+     "formula_wait_min": 0.5354716288180206,
+     "formula_pct_over_20s": 28.58481075969165
+    },
+    {
+     "servers": 9,
+     "sim_wait_min": 0.17710497073563758,
+     "sim_wait_ci_half": 0.02311804819685238,
+     "sim_pct_over_20s": 13.121193334989655,
+     "formula_wait_min": 0.19598091269574566,
+     "formula_pct_over_20s": 14.042646022133
+    },
+    {
+     "servers": 10,
+     "sim_wait_min": 0.0664059616201781,
+     "sim_wait_ci_half": 0.010161019681625418,
+     "sim_pct_over_20s": 5.6752157217229895,
+     "formula_wait_min": 0.07597443201556314,
+     "formula_pct_over_20s": 6.495108777397859
+    },
+    {
+     "servers": 11,
+     "sim_wait_min": 0.026020857870769225,
+     "sim_wait_ci_half": 0.005801404861430625,
+     "sim_pct_over_20s": 2.3877684645277135,
+     "formula_wait_min": 0.02953318460209706,
+     "formula_pct_over_20s": 2.824127615120544
+    },
+    {
+     "servers": 12,
+     "sim_wait_min": 0.010228340150323915,
+     "sim_wait_ci_half": 0.0030141851153957207,
+     "sim_pct_over_20s": 1.0213002068008201,
+     "formula_wait_min": 0.011237095259687628,
+     "formula_pct_over_20s": 1.1538634149047238
+    },
+    {
+     "servers": 13,
+     "sim_wait_min": 0.004177219329365653,
+     "sim_wait_ci_half": 0.0017039225083452848,
+     "sim_pct_over_20s": 0.4394822451293421,
+     "formula_wait_min": 0.004134549734263596,
+     "formula_pct_over_20s": 0.4432210810257005
+    },
+    {
+     "servers": 14,
+     "sim_wait_min": 0.0016472684911784964,
+     "sim_wait_ci_half": 0.0009328298567479806,
+     "sim_pct_over_20s": 0.18286926541567905,
+     "formula_wait_min": 0.0014618203682730745,
+     "formula_pct_over_20s": 0.16025928530954775
+    }
+   ]
+  }
+ },
+ "arrivals_staffing": [
+  {
+   "hour": 0,
+   "calls_per_hour": 41.868336200232605,
+   "servers_for_80_in_20s": 6
+  },
+  {
+   "hour": 1,
+   "calls_per_hour": 29.994776904166635,
+   "servers_for_80_in_20s": 5
+  },
+  {
+   "hour": 2,
+   "calls_per_hour": 22.393292152124406,
+   "servers_for_80_in_20s": 4
+  },
+  {
+   "hour": 3,
+   "calls_per_hour": 18.040990856100226,
+   "servers_for_80_in_20s": 4
+  },
+  {
+   "hour": 4,
+   "calls_per_hour": 16.877702952093763,
+   "servers_for_80_in_20s": 3
+  },
+  {
+   "hour": 5,
+   "calls_per_hour": 19.615440864108972,
+   "servers_for_80_in_20s": 4
+  },
+  {
+   "hour": 6,
+   "calls_per_hour": 29.648799036164714,
+   "servers_for_80_in_20s": 5
+  },
+  {
+   "hour": 7,
+   "calls_per_hour": 53.04993976029472,
+   "servers_for_80_in_20s": 7
+  },
+  {
+   "hour": 8,
+   "calls_per_hour": 76.30566949642392,
+   "servers_for_80_in_20s": 10
+  },
+  {
+   "hour": 9,
+   "calls_per_hour": 93.38895350051881,
+   "servers_for_80_in_20s": 11
+  },
+  {
+   "hour": 10,
+   "calls_per_hour": 93.29869840451832,
+   "servers_for_80_in_20s": 11
+  },
+  {
+   "hour": 11,
+   "calls_per_hour": 91.24790205650693,
+   "servers_for_80_in_20s": 11
+  },
+  {
+   "hour": 12,
+   "calls_per_hour": 88.15415793248974,
+   "servers_for_80_in_20s": 11
+  },
+  {
+   "hour": 13,
+   "calls_per_hour": 86.23874422847909,
+   "servers_for_80_in_20s": 11
+  },
+  {
+   "hour": 14,
+   "calls_per_hour": 87.74299582848747,
+   "servers_for_80_in_20s": 11
+  },
+  {
+   "hour": 15,
+   "calls_per_hour": 83.53109134846406,
+   "servers_for_80_in_20s": 10
+  },
+  {
+   "hour": 16,
+   "calls_per_hour": 82.96950408446094,
+   "servers_for_80_in_20s": 10
+  },
+  {
+   "hour": 17,
+   "calls_per_hour": 68.5086320363806,
+   "servers_for_80_in_20s": 9
+  },
+  {
+   "hour": 18,
+   "calls_per_hour": 64.64270542435912,
+   "servers_for_80_in_20s": 8
+  },
+  {
+   "hour": 19,
+   "calls_per_hour": 64.08613233235603,
+   "servers_for_80_in_20s": 8
+  },
+  {
+   "hour": 20,
+   "calls_per_hour": 58.8964643123272,
+   "servers_for_80_in_20s": 8
+  },
+  {
+   "hour": 21,
+   "calls_per_hour": 59.1672296003287,
+   "servers_for_80_in_20s": 8
+  },
+  {
+   "hour": 22,
+   "calls_per_hour": 59.608476736331156,
+   "servers_for_80_in_20s": 8
+  },
+  {
+   "hour": 23,
+   "calls_per_hour": 50.723363952281794,
+   "servers_for_80_in_20s": 7
+  }
+ ],
+ "servers_at_mean_rate": 8
+}

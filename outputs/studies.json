@@ -1,0 +1,679 @@
+{
+ "arrivals": {
+  "days": 31,
+  "requests_per_day": 9264.064516129032,
+  "mean_requests_per_hour": 386.002688172043,
+  "peak_hour": 9,
+  "peak_mean_per_hour": 600.8064516129032,
+  "trough_hour": 4,
+  "trough_mean_per_hour": 108.58064516129032,
+  "peak_to_trough_ratio": 5.533273915626856,
+  "scaled_staffing_by_hour": [
+   {
+    "hour": 0,
+    "calls_per_hour": 41.868336200232605,
+    "servers_for_80_in_20s": 6
+   },
+   {
+    "hour": 1,
+    "calls_per_hour": 29.994776904166635,
+    "servers_for_80_in_20s": 5
+   },
+   {
+    "hour": 2,
+    "calls_per_hour": 22.393292152124406,
+    "servers_for_80_in_20s": 4
+   },
+   {
+    "hour": 3,
+    "calls_per_hour": 18.040990856100226,
+    "servers_for_80_in_20s": 4
+   },
+   {
+    "hour": 4,
+    "calls_per_hour": 16.877702952093763,
+    "servers_for_80_in_20s": 3
+   },
+   {
+    "hour": 5,
+    "calls_per_hour": 19.615440864108972,
+    "servers_for_80_in_20s": 4
+   },
+   {
+    "hour": 6,
+    "calls_per_hour": 29.648799036164714,
+    "servers_for_80_in_20s": 5
+   },
+   {
+    "hour": 7,
+    "calls_per_hour": 53.04993976029472,
+    "servers_for_80_in_20s": 7
+   },
+   {
+    "hour": 8,
+    "calls_per_hour": 76.30566949642392,
+    "servers_for_80_in_20s": 10
+   },
+   {
+    "hour": 9,
+    "calls_per_hour": 93.38895350051881,
+    "servers_for_80_in_20s": 11
+   },
+   {
+    "hour": 10,
+    "calls_per_hour": 93.29869840451832,
+    "servers_for_80_in_20s": 11
+   },
+   {
+    "hour": 11,
+    "calls_per_hour": 91.24790205650693,
+    "servers_for_80_in_20s": 11
+   },
+   {
+    "hour": 12,
+    "calls_per_hour": 88.15415793248974,
+    "servers_for_80_in_20s": 11
+   },
+   {
+    "hour": 13,
+    "calls_per_hour": 86.23874422847909,
+    "servers_for_80_in_20s": 11
+   },
+   {
+    "hour": 14,
+    "calls_per_hour": 87.74299582848747,
+    "servers_for_80_in_20s": 11
+   },
+   {
+    "hour": 15,
+    "calls_per_hour": 83.53109134846406,
+    "servers_for_80_in_20s": 10
+   },
+   {
+    "hour": 16,
+    "calls_per_hour": 82.96950408446094,
+    "servers_for_80_in_20s": 10
+   },
+   {
+    "hour": 17,
+    "calls_per_hour": 68.5086320363806,
+    "servers_for_80_in_20s": 9
+   },
+   {
+    "hour": 18,
+    "calls_per_hour": 64.64270542435912,
+    "servers_for_80_in_20s": 8
+   },
+   {
+    "hour": 19,
+    "calls_per_hour": 64.08613233235603,
+    "servers_for_80_in_20s": 8
+   },
+   {
+    "hour": 20,
+    "calls_per_hour": 58.8964643123272,
+    "servers_for_80_in_20s": 8
+   },
+   {
+    "hour": 21,
+    "calls_per_hour": 59.1672296003287,
+    "servers_for_80_in_20s": 8
+   },
+   {
+    "hour": 22,
+    "calls_per_hour": 59.608476736331156,
+    "servers_for_80_in_20s": 8
+   },
+   {
+    "hour": 23,
+    "calls_per_hour": 50.723363952281794,
+    "servers_for_80_in_20s": 7
+   }
+  ],
+  "servers_at_mean_rate": 8,
+  "min_staff": 3,
+  "max_staff": 11
+ },
+ "validation": {
+  "settings": [
+   {
+    "servers": 1,
+    "rho": 0.5,
+    "lambda_per_min": 0.5,
+    "erlang_wait_min": 1.0,
+    "sim_wait_min": 1.010856228308526,
+    "sim_wait_ci_half": 0.02965462741139281,
+    "rel_err_pct": 1.0856228308526061,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 42.324086244530704,
+    "sim_pct_over_20s": 42.653863344964535,
+    "little_ratio": 1.0000612093609909,
+    "utilisation": 0.5028307943568189
+   },
+   {
+    "servers": 1,
+    "rho": 0.8,
+    "lambda_per_min": 0.8,
+    "erlang_wait_min": 4.000000000000001,
+    "sim_wait_min": 3.953732540385415,
+    "sim_wait_ci_half": 0.2667119669166945,
+    "rel_err_pct": -1.1566864903646443,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 74.84055880252942,
+    "sim_pct_over_20s": 74.75221949330269,
+    "little_ratio": 1.0002276770307121,
+    "utilisation": 0.7990817397589144
+   },
+   {
+    "servers": 1,
+    "rho": 0.95,
+    "lambda_per_min": 0.95,
+    "erlang_wait_min": 18.99999999999998,
+    "sim_wait_min": 16.75715466688203,
+    "sim_wait_ci_half": 2.977610912648956,
+    "rel_err_pct": -11.804449121673425,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 93.42978811305365,
+    "sim_pct_over_20s": 93.14806765383308,
+    "little_ratio": 1.0011829864980493,
+    "utilisation": 0.9478923244756194
+   },
+   {
+    "servers": 2,
+    "rho": 0.6,
+    "lambda_per_min": 1.2,
+    "erlang_wait_min": 0.5625,
+    "sim_wait_min": 0.550864689520071,
+    "sim_wait_ci_half": 0.025783427822469646,
+    "rel_err_pct": -2.0684996408762757,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 34.46677522640919,
+    "sim_pct_over_20s": 34.35483785595535,
+    "little_ratio": 1.0002248721775198,
+    "utilisation": 0.5989589609801218
+   },
+   {
+    "servers": 2,
+    "rho": 0.9,
+    "lambda_per_min": 1.8,
+    "erlang_wait_min": 4.2631578947368425,
+    "sim_wait_min": 4.241237001252109,
+    "sim_wait_ci_half": 0.5588607911302704,
+    "rel_err_pct": -0.5141937977900548,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 79.76427977638004,
+    "sim_pct_over_20s": 79.33223022764005,
+    "little_ratio": 1.000437611420485,
+    "utilisation": 0.89752027950156
+   },
+   {
+    "servers": 3,
+    "rho": 0.7,
+    "lambda_per_min": 2.0999999999999996,
+    "erlang_wait_min": 0.5470494417862835,
+    "sim_wait_min": 0.5553403549797741,
+    "sim_wait_ci_half": 0.028145191680461736,
+    "rel_err_pct": 1.5155692630666544,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 36.47377746801374,
+    "sim_pct_over_20s": 36.58285776069568,
+    "little_ratio": 1.000278577233581,
+    "utilisation": 0.7001304203186962
+   },
+   {
+    "servers": 4,
+    "rho": 0.85,
+    "lambda_per_min": 3.4,
+    "erlang_wait_min": 1.1488603694686306,
+    "sim_wait_min": 1.1700631322639237,
+    "sim_wait_ci_half": 0.11542446240470905,
+    "rel_err_pct": 1.8455474101782943,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 56.43643892859003,
+    "sim_pct_over_20s": 56.39967359721172,
+    "little_ratio": 1.000725649155299,
+    "utilisation": 0.8495656370851227
+   },
+   {
+    "servers": 5,
+    "rho": 0.5,
+    "lambda_per_min": 2.5,
+    "erlang_wait_min": 0.052148518982060924,
+    "sim_wait_min": 0.051502671202018166,
+    "sim_wait_ci_half": 0.0034642932408575997,
+    "rel_err_pct": -1.2384777030099916,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 5.66591323147526,
+    "sim_pct_over_20s": 5.600405821417316,
+    "little_ratio": 1.0001207757861836,
+    "utilisation": 0.500605145279614
+   },
+   {
+    "servers": 5,
+    "rho": 0.95,
+    "lambda_per_min": 4.75,
+    "erlang_wait_min": 3.5111960987009363,
+    "sim_wait_min": 3.810541883538261,
+    "sim_wait_ci_half": 0.45579570614486226,
+    "rel_err_pct": 8.52546472548417,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 80.76140898195166,
+    "sim_pct_over_20s": 82.0517097332835,
+    "little_ratio": 0.999783470887818,
+    "utilisation": 0.9538372789164686
+   },
+   {
+    "servers": 7,
+    "rho": 0.8,
+    "lambda_per_min": 5.6000000000000005,
+    "erlang_wait_min": 0.3470982930893806,
+    "sim_wait_min": 0.34372692836298113,
+    "sim_wait_ci_half": 0.014395628431333428,
+    "rel_err_pct": -0.9712997135169807,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 30.47261715585623,
+    "sim_pct_over_20s": 30.19429358206877,
+    "little_ratio": 1.0001921026608718,
+    "utilisation": 0.7991378306867409
+   },
+   {
+    "servers": 10,
+    "rho": 0.6,
+    "lambda_per_min": 6.0,
+    "erlang_wait_min": 0.025324810671854374,
+    "sim_wait_min": 0.02548247899577994,
+    "sim_wait_ci_half": 0.002022066153749048,
+    "rel_err_pct": 0.6225844132402415,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 2.6702190465693714,
+    "sim_pct_over_20s": 2.664125158750493,
+    "little_ratio": 1.0002985894407619,
+    "utilisation": 0.6009853558307154
+   },
+   {
+    "servers": 10,
+    "rho": 0.9,
+    "lambda_per_min": 9.0,
+    "erlang_wait_min": 0.6687315241076972,
+    "sim_wait_min": 0.6435082580353829,
+    "sim_wait_ci_half": 0.04997355100076941,
+    "rel_err_pct": -3.771807543538527,
+    "erlang_in_ci": true,
+    "erlang_pct_over_20s": 47.91670753908958,
+    "sim_pct_over_20s": 47.178036058878355,
+    "little_ratio": 1.0003732320738874,
+    "utilisation": 0.8992269062267052
+   }
+  ]
+ },
+ "beyond": {
+  "variability": {
+   "erlang_wait_min": 1.0661890139883996,
+   "erlang_pct_over_20s": 28.94183143666707,
+   "cases": {
+    "exponential": {
+     "sim_wait_min": 1.0436630751623643,
+     "sim_wait_ci_half": 0.05252391327546203,
+     "sim_pct_over_20s": 28.71575825692116
+    },
+    "uniform_cv0.5": {
+     "sim_wait_min": 0.6968032106239271,
+     "sim_wait_ci_half": 0.029130815941410402,
+     "sim_pct_over_20s": 27.628347150415934
+    },
+    "lognormal_cv2": {
+     "sim_wait_min": 2.0453227622064003,
+     "sim_wait_ci_half": 0.2511513184617138,
+     "sim_pct_over_20s": 30.062903906629778
+    }
+   }
+  },
+  "abandonment": {
+   "erlang_wait_min_no_abandonment": 26.33397074025703,
+   "erlang_pct_over_20s": 86.8099687174398,
+   "cases": {
+    "no_abandonment": {
+     "sim_wait_min": 26.93976633986396,
+     "sim_pct_over_20s": 86.68254278642358,
+     "abandon_pct": 0.0
+    },
+    "patience_10": {
+     "sim_wait_min": 1.318739321510789,
+     "sim_pct_over_20s": 42.85668382410518,
+     "abandon_pct": 14.650516701588353
+    },
+    "patience_4": {
+     "sim_wait_min": 0.5763808972104267,
+     "sim_pct_over_20s": 28.810927706670096,
+     "abandon_pct": 18.487869209598102
+    }
+   }
+  },
+  "time_varying": {
+   "servers": 8,
+   "formula_at_mean_rate": {
+    "wait_min": 0.27877751110292764,
+    "pct_over_20s": 13.694623296390324
+   },
+   "flat_day_sim": {
+    "wait_min": 0.2830012809150701,
+    "pct_over_20s": 13.625351143501907
+   },
+   "profile_day_sim": {
+    "wait_min": 2.921081190474233,
+    "pct_over_20s": 41.360208551797314
+   }
+  }
+ },
+ "truth": {
+  "F1": {
+   "MEAN_WAIT_MIN": 1.0661890139883996,
+   "PCT_OVER_20S": 28.94183143666707,
+   "erlang_c": 0.3198567041965199,
+   "rho": 0.625
+  },
+  "F2": {
+   "MEAN_WAIT_MIN": 0.5695216907675195,
+   "PCT_OVER_20S": 24.10448515817544,
+   "erlang_c": 0.28476084538375973,
+   "rho": 0.6666666666666666
+  },
+  "F3": {
+   "MEAN_WAIT_MIN": 2.2482014388489198,
+   "PCT_OVER_20S": 28.672923834023656,
+   "erlang_c": 0.29976019184652275,
+   "rho": 0.5555555555555555
+  },
+  "F4": {
+   "MEAN_WAIT_MIN": 0.5354716288180206,
+   "PCT_OVER_20S": 28.58481075969165,
+   "erlang_c": 0.35698108587868027,
+   "rho": 0.75
+  },
+  "F5": {
+   "MEAN_WAIT_MIN": 3.5250987027636804,
+   "PCT_OVER_20S": 55.57667494517098,
+   "erlang_c": 0.5875164504606133,
+   "rho": 0.8333333333333335
+  },
+  "T1": {
+   "MEAN_WAIT_MIN": 0.8183603015928871,
+   "PCT_OVER_20S": 34.63635198371751,
+   "erlang_c": 0.40918015079644354,
+   "rho": 0.8
+  },
+  "T2": {
+   "MEAN_WAIT_MIN": 0.5354716288180206,
+   "PCT_OVER_20S": 28.58481075969165,
+   "erlang_c": 0.35698108587868027,
+   "rho": 0.75
+  },
+  "T3": {
+   "MEAN_WAIT_MIN": 16.51171156251395,
+   "PCT_OVER_20S": 81.19398487734408,
+   "erlang_c": 0.8255855781256981,
+   "rho": 0.9499999999999998
+  },
+  "T4": {
+   "MEAN_WAIT_MIN": 9.149918648795236,
+   "PCT_OVER_20S": 74.16043202557174,
+   "erlang_c": 0.7624932207329356,
+   "rho": 0.9
+  },
+  "T5": {
+   "MEAN_WAIT_MIN": 0.6077811546999148,
+   "PCT_OVER_20S": 27.13551384771058,
+   "erlang_c": 0.32414994917328793,
+   "rho": 0.7142857142857143
+  },
+  "B1": {
+   "n_reps": 200,
+   "MEAN_WAIT_MIN": 2.000183571004078,
+   "MEAN_WAIT_MIN_CI": 0.14320623773237817,
+   "PCT_OVER_20S": 29.761353879969736
+  },
+  "B2": {
+   "n_reps": 200,
+   "MEAN_WAIT_MIN": 1.2909587711312924,
+   "MEAN_WAIT_MIN_CI": 0.014841270877374047,
+   "PCT_OVER_20S": 42.286299421165424,
+   "ABANDON_PCT": 14.366645312545408
+  },
+  "B3": {
+   "n_reps": 200,
+   "MEAN_WAIT_MIN": 11.249829150243768,
+   "MEAN_WAIT_MIN_CI": 0.9839605881375847,
+   "PCT_OVER_20S": 56.75025248852392
+  },
+  "B4": {
+   "n_reps": 200,
+   "STEADY_STATE": "no",
+   "MEAN_WAIT_MIN": 49.921407590658816,
+   "PCT_OVER_20S": 95.47472412318326,
+   "note": "Unstable: offered load 5 erlangs on 4 servers. The day-average wait is a finite-horizon number that grows with the horizon; there is no steady-state average wait."
+  },
+  "B5": {
+   "n_reps": 200,
+   "PRIORITY_MEAN_WAIT_MIN": 0.3737994620826878,
+   "REGULAR_MEAN_WAIT_MIN": 1.1265605849540075
+  }
+ },
+ "playground": {
+  "desk": {
+   "label": "Support desk",
+   "lam_h": 30.0,
+   "service_min": 5.0,
+   "staffing_80_20": 5,
+   "points": [
+    {
+     "servers": 3,
+     "sim_wait_min": 6.822722210249632,
+     "sim_wait_ci_half": 0.7624929638660795,
+     "sim_pct_over_20s": 67.27656609712598,
+     "formula_wait_min": 7.022471910112354,
+     "formula_pct_over_20s": 67.922478966433
+    },
+    {
+     "servers": 4,
+     "sim_wait_min": 1.0521225756265182,
+     "sim_wait_ci_half": 0.10749681103957613,
+     "sim_pct_over_20s": 28.219785703577383,
+     "formula_wait_min": 1.0661890139883996,
+     "formula_pct_over_20s": 28.94183143666707
+    },
+    {
+     "servers": 5,
+     "sim_wait_min": 0.2567030977719943,
+     "sim_wait_ci_half": 0.033171639591017404,
+     "sim_pct_over_20s": 10.97027096300762,
+     "formula_wait_min": 0.2607425949103046,
+     "formula_pct_over_20s": 11.035692074606466
+    },
+    {
+     "servers": 6,
+     "sim_wait_min": 0.06586171047984951,
+     "sim_wait_ci_half": 0.010595628321371666,
+     "sim_pct_over_20s": 3.7324256447780106,
+     "formula_wait_min": 0.06777830313493628,
+     "formula_pct_over_20s": 3.7571051753597344
+    },
+    {
+     "servers": 7,
+     "sim_wait_min": 0.01470162147458041,
+     "sim_wait_ci_half": 0.0026256649374852086,
+     "sim_pct_over_20s": 1.00752488914233,
+     "formula_wait_min": 0.017159419296697724,
+     "formula_pct_over_20s": 1.144080942418003
+    },
+    {
+     "servers": 8,
+     "sim_wait_min": 0.0031603652657394158,
+     "sim_wait_ci_half": 0.0006832043870121533,
+     "sim_pct_over_20s": 0.26645855819427955,
+     "formula_wait_min": 0.00410657673902263,
+     "formula_pct_over_20s": 0.31306269386092805
+    },
+    {
+     "servers": 9,
+     "sim_wait_min": 0.000662620060221906,
+     "sim_wait_ci_half": 0.0002749018179144756,
+     "sim_pct_over_20s": 0.06898029712671866,
+     "formula_wait_min": 0.0009190157582684529,
+     "formula_pct_over_20s": 0.07745902660139317
+    },
+    {
+     "servers": 10,
+     "sim_wait_min": 0.00011925544036256355,
+     "sim_wait_ci_half": 0.00010267814522129955,
+     "sim_pct_over_20s": 0.013030663935838729,
+     "formula_wait_min": 0.0001917537480386402,
+     "formula_pct_over_20s": 0.017445679095036977
+    }
+   ]
+  },
+  "bank": {
+   "label": "Bank call centre",
+   "lam_h": 60.0,
+   "service_min": 4.0,
+   "staffing_80_20": 7,
+   "points": [
+    {
+     "servers": 5,
+     "sim_wait_min": 2.1468914005216955,
+     "sim_wait_ci_half": 0.25333540613720235,
+     "sim_pct_over_20s": 50.57204152051773,
+     "formula_wait_min": 2.2164502164502173,
+     "formula_pct_over_20s": 50.98081604872443
+    },
+    {
+     "servers": 6,
+     "sim_wait_min": 0.5568263969817984,
+     "sim_wait_ci_half": 0.06783022154162649,
+     "sim_pct_over_20s": 23.56655377938564,
+     "formula_wait_min": 0.5695216907675195,
+     "formula_pct_over_20s": 24.10448515817544
+    },
+    {
+     "servers": 7,
+     "sim_wait_min": 0.16740199174142611,
+     "sim_wait_ci_half": 0.02117261479630548,
+     "sim_pct_over_20s": 9.949634941270025,
+     "formula_wait_min": 0.1801468971280292,
+     "formula_pct_over_20s": 10.52239084133947
+    },
+    {
+     "servers": 8,
+     "sim_wait_min": 0.055774078318401255,
+     "sim_wait_ci_half": 0.00906790304178551,
+     "sim_pct_over_20s": 3.9800745893568816,
+     "formula_wait_min": 0.05904399469526611,
+     "formula_pct_over_20s": 4.230687090051088
+    },
+    {
+     "servers": 9,
+     "sim_wait_min": 0.018786886683179967,
+     "sim_wait_ci_half": 0.0042303014365912255,
+     "sim_pct_over_20s": 1.5369430326000915,
+     "formula_wait_min": 0.019006299084718625,
+     "formula_pct_over_20s": 1.566215573298503
+    },
+    {
+     "servers": 10,
+     "sim_wait_min": 0.005965419268937818,
+     "sim_wait_ci_half": 0.002102319968804633,
+     "sim_pct_over_20s": 0.5258466175356905,
+     "formula_wait_min": 0.0058764833780597416,
+     "formula_pct_over_20s": 0.534640101012735
+    },
+    {
+     "servers": 11,
+     "sim_wait_min": 0.00185156619345125,
+     "sim_wait_ci_half": 0.0008922600391894145,
+     "sim_pct_over_20s": 0.19715860922518016,
+     "formula_wait_min": 0.0017278368527173312,
+     "formula_pct_over_20s": 0.16873389574527067
+    },
+    {
+     "servers": 12,
+     "sim_wait_min": 0.0005005086252461287,
+     "sim_wait_ci_half": 0.0003428332542580761,
+     "sim_pct_over_20s": 0.06155580575062691,
+     "formula_wait_min": 0.0004811116121385304,
+     "formula_pct_over_20s": 0.049402187567458025
+    }
+   ]
+  },
+  "busy": {
+   "label": "Busy help line",
+   "lam_h": 120.0,
+   "service_min": 3.0,
+   "staffing_80_20": 9,
+   "points": [
+    {
+     "servers": 7,
+     "sim_wait_min": 1.653189543421035,
+     "sim_wait_ci_half": 0.23049543467375477,
+     "sim_pct_over_20s": 53.481808440511514,
+     "formula_wait_min": 1.8414903694347977,
+     "formula_pct_over_20s": 54.92793280350915
+    },
+    {
+     "servers": 8,
+     "sim_wait_min": 0.48394229556357204,
+     "sim_wait_ci_half": 0.05841391349344703,
+     "sim_pct_over_20s": 27.392837068642706,
+     "formula_wait_min": 0.5354716288180206,
+     "formula_pct_over_20s": 28.58481075969165
+    },
+    {
+     "servers": 9,
+     "sim_wait_min": 0.17710497073563758,
+     "sim_wait_ci_half": 0.02311804819685238,
+     "sim_pct_over_20s": 13.121193334989655,
+     "formula_wait_min": 0.19598091269574566,
+     "formula_pct_over_20s": 14.042646022133
+    },
+    {
+     "servers": 10,
+     "sim_wait_min": 0.0664059616201781,
+     "sim_wait_ci_half": 0.010161019681625418,
+     "sim_pct_over_20s": 5.6752157217229895,
+     "formula_wait_min": 0.07597443201556314,
+     "formula_pct_over_20s": 6.495108777397859
+    },
+    {
+     "servers": 11,
+     "sim_wait_min": 0.026020857870769225,
+     "sim_wait_ci_half": 0.005801404861430625,
+     "sim_pct_over_20s": 2.3877684645277135,
+     "formula_wait_min": 0.02953318460209706,
+     "formula_pct_over_20s": 2.824127615120544
+    },
+    {
+     "servers": 12,
+     "sim_wait_min": 0.010228340150323915,
+     "sim_wait_ci_half": 0.0030141851153957207,
+     "sim_pct_over_20s": 1.0213002068008201,
+     "formula_wait_min": 0.011237095259687628,
+     "formula_pct_over_20s": 1.1538634149047238
+    },
+    {
+     "servers": 13,
+     "sim_wait_min": 0.004177219329365653,
+     "sim_wait_ci_half": 0.0017039225083452848,
+     "sim_pct_over_20s": 0.4394822451293421,
+     "formula_wait_min": 0.004134549734263596,
+     "formula_pct_over_20s": 0.4432210810257005
+    },
+    {
+     "servers": 14,
+     "sim_wait_min": 0.0016472684911784964,
+     "sim_wait_ci_half": 0.0009328298567479806,
+     "sim_pct_over_20s": 0.18286926541567905,
+     "formula_wait_min": 0.0014618203682730745,
+     "formula_pct_over_20s": 0.16025928530954775
+    }
+   ]
+  }
+ }
+}

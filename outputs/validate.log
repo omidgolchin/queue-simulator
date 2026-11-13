@@ -1,0 +1,31 @@
+running section arrivals ...
+saved section arrivals
+running section validation ...
+validation c=1 rho=0.5: sim 1.011 vs erlang 1.000
+validation c=1 rho=0.8: sim 3.954 vs erlang 4.000
+validation c=1 rho=0.95: sim 16.757 vs erlang 19.000
+validation c=2 rho=0.6: sim 0.551 vs erlang 0.562
+validation c=2 rho=0.9: sim 4.241 vs erlang 4.263
+validation c=3 rho=0.7: sim 0.555 vs erlang 0.547
+validation c=4 rho=0.85: sim 1.170 vs erlang 1.149
+validation c=5 rho=0.5: sim 0.052 vs erlang 0.052
+validation c=5 rho=0.95: sim 3.811 vs erlang 3.511
+validation c=7 rho=0.8: sim 0.344 vs erlang 0.347
+validation c=10 rho=0.6: sim 0.025 vs erlang 0.025
+validation c=10 rho=0.9: sim 0.644 vs erlang 0.669
+saved section validation
+running section beyond ...
+saved section beyond
+running section truth ...
+truth B1 done
+truth B2 done
+truth B3 done
+truth B4 done
+truth B5 done
+saved section truth
+running section playground ...
+playground preset desk done
+playground preset bank done
+playground preset busy done
+saved section playground
+done
