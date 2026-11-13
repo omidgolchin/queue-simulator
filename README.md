@@ -13,6 +13,8 @@ can do the same jobs. The setting throughout is a call centre, a bank,
 a clinic desk: callers arrive at random, each call takes a random
 time, and a small team answers.
 
+![The live queue: staffed with 4 agents for the average hour, the queue builds once arrivals hit the rush-hour rate of 75 calls an hour](docs/hero.gif)
+
 ## The result
 
 The SimPy simulator reproduces Erlang C: across 12 M/M/c settings
