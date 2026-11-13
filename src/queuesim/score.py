@@ -137,4 +137,9 @@ def score_hand(scenario, parsed: dict, outcomes) -> dict:
         "tracked": tracked,
         "tracked_share": tracked / n if n else math.nan,
         "mae_min": (sum(errs) / len(errs)) if errs else math.nan,
+        # Basis of the MAE: how many customer waits actually entered it,
+        # out of the customers whose wait could be checked (served
+        # customers; an abandoned customer's wait is not checkable).
+        "n_errs": len(errs),
+        "n_scorable": sum(1 for o in outcomes if not o.abandoned),
     }

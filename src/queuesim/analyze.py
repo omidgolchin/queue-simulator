@@ -81,6 +81,12 @@ def score_runs(rows: list[dict], truth: dict) -> list[dict]:
     return scored
 
 
+def _is_wait_key(key: str) -> bool:
+    """Wait questions (as opposed to percentages or STEADY_STATE)."""
+    return key != "STEADY_STATE" and key != "PCT_OVER_20S" \
+        and not key.endswith("_PCT")
+
+
 def aggregate(scored: list[dict]) -> dict:
     """Per (model, mode) aggregates over scenarios."""
     agg: dict[tuple[str, str], dict] = {}
@@ -89,7 +95,8 @@ def aggregate(scored: list[dict]) -> dict:
         a = agg.setdefault(key, {"n": 0, "close": 0, "code_failed": 0,
                                  "api_error": 0, "wait_rel_errs": [],
                                  "pct_abs_errs": [], "hand_tracked": [],
-                                 "hand_mae": []})
+                                 "hand_mae": [], "wait_asked": 0,
+                                 "hand_counted": 0, "hand_asked": 0})
         a["n"] += 1
         if e.get("verdict") == "code_failed":
             a["code_failed"] += 1
@@ -101,16 +108,24 @@ def aggregate(scored: list[dict]) -> dict:
             a["hand_tracked"].append(e["hand"]["tracked_share"])
             if not math.isnan(e["hand"]["mae_min"]):
                 a["hand_mae"].append(e["hand"]["mae_min"])
+            # The MAE rests only on the customers whose waits entered
+            # it; count that basis so a thin one cannot read as perfect.
+            a["hand_counted"] += e["hand"]["n_errs"]
+            a["hand_asked"] += e["hand"]["n_scorable"]
         else:
             num = e["numeric"]
             if num["all_close"]:
                 a["close"] += 1
+            a["wait_asked"] += sum(
+                1 for q in BY_ID[e["scenario_id"]].questions
+                if _is_wait_key(q.key))
             for k, pq in num["per_question"].items():
                 if "rel_err" in pq:
                     a["wait_rel_errs"].append(pq["rel_err"])
                 if "abs_err_points" in pq:
                     a["pct_abs_errs"].append(pq["abs_err_points"])
     for a in agg.values():
+        a["wait_counted"] = len(a["wait_rel_errs"])
         a["mean_wait_rel_err"] = (sum(a["wait_rel_errs"]) / len(a["wait_rel_errs"])
                                   if a["wait_rel_errs"] else None)
         a["mean_pct_abs_err"] = (sum(a["pct_abs_errs"]) / len(a["pct_abs_errs"])
@@ -284,7 +299,7 @@ def write_summary(studies: dict, scored: list[dict], agg: dict,
         f"{worst['rel_err_pct']:+.1f}% (c={worst['servers']}, "
         f"ρ={worst['rho']}). Little's law, measured from each run's own "
         f"counters, deviates from L = λW by at most "
-        f"{100 * max(little_devs):.1f}% across the 12 settings.\n")
+        f"{100 * max(little_devs):.2f}% across the 12 settings.\n")
     add("| servers | ρ | Erlang C wait (min) | simulated wait (min) | ±95% CI | rel. diff | P(wait>20 s): formula | simulated |")
     add("|---|---|---|---|---|---|---|---|")
     for r in rows:
@@ -360,23 +375,37 @@ def write_summary(studies: dict, scored: list[dict], agg: dict,
         "≤ 25% relative error on the wait and ≤ 10 points on the "
         "percentage. The hand simulation is scored per customer "
         "(≤ 0.11 min error = tracked).\n")
-    add("| model | mode | scenarios close | code failed | mean wait rel. err | mean pct err (pts) | hand: customers tracked | hand MAE (min) |")
-    add("|---|---|---|---|---|---|---|---|")
+    add("The two error averages rest only on answers actually given: a "
+        "wait error exists only where the model printed a number, and "
+        "a hand MAE only over the customers whose waits could be "
+        "checked. The 'answers counted / asked' column gives that "
+        "basis for each row (wait answers behind the average, out of "
+        "the wait questions in the runs that returned output; for "
+        "hand rows, checked customer waits out of the served "
+        "customers), so a small average on few answers does not read "
+        "as a good average.\n")
+    add("| model | mode | scenarios close | code failed | answers counted / asked | mean wait rel. err (answered items only) | mean pct err (pts) | hand: customers tracked | hand MAE (min, answered items only) |")
+    add("|---|---|---|---|---|---|---|---|---|")
     for m in models:
         for mode in ("direct", "code", "hand"):
             a = agg.get((m, mode))
             if not a:
                 continue
             close_str = f"{a['close']}/{a['n']}" if mode != "hand" else "–"
+            if mode == "hand":
+                counted_str = f"{a['hand_counted']}/{a['hand_asked']}"
+            else:
+                counted_str = f"{a['wait_counted']}/{a['wait_asked']}"
             add(f"| {m} | {mode} | {close_str} | {a['code_failed']} | "
+                f"{counted_str} | "
                 f"{_fmt(100 * a['mean_wait_rel_err'], 0) if a['mean_wait_rel_err'] is not None else '–'}"
                 f"{'%' if a['mean_wait_rel_err'] is not None else ''} | "
                 f"{_fmt(a['mean_pct_abs_err'], 1) if a['mean_pct_abs_err'] is not None else '–'} | "
                 f"{_fmt(100 * a['mean_hand_tracked'], 0) + '%' if a['mean_hand_tracked'] is not None else '–'} | "
                 f"{_fmt(a['mean_hand_mae']) if a['mean_hand_mae'] is not None else '–'} |")
     add("")
-    add("Per-scenario detail (Direct mode, first model listed per "
-        "scenario is not special — the full per-run scores are in "
+    add("Ground truth for each scenario, the numbers the answers were "
+        "scored against (the full per-run scores are in "
         "`outputs/llm_scores.json`):\n")
     add("| scenario | kind | truth: wait (min) | truth: % over 20 s | note |")
     add("|---|---|---|---|---|")
@@ -385,6 +414,13 @@ def write_summary(studies: dict, scored: list[dict], agg: dict,
         note = ""
         if s.id == "B4":
             note = "no steady state exists (ρ > 1)"
+        if s.id == "B5":
+            add(f"| {s.id} {s.title} | {s.kind} | "
+                f"priority {_fmt(t.get('PRIORITY_MEAN_WAIT_MIN'))} / "
+                f"regular {_fmt(t.get('REGULAR_MEAN_WAIT_MIN'))} | – | "
+                f"two customer classes with separate waits (200 "
+                f"replications); no single pooled wait or percentage |")
+            continue
         add(f"| {s.id} {s.title} | {s.kind} | "
             f"{_fmt(t.get('MEAN_WAIT_MIN'))} | {_fmt(t.get('PCT_OVER_20S'), 1)}"
             f"{'%' if t.get('PCT_OVER_20S') is not None else ''} | {note} |")
@@ -428,6 +464,10 @@ def export_docs_data(studies: dict, agg: dict | None = None) -> None:
             rows.append({
                 "model": model, "mode": mode, "n": a["n"],
                 "close": a["close"], "code_failed": a["code_failed"],
+                "wait_counted": a["wait_counted"],
+                "wait_asked": a["wait_asked"],
+                "hand_counted": a["hand_counted"],
+                "hand_asked": a["hand_asked"],
                 "mean_wait_rel_err": a["mean_wait_rel_err"],
                 "mean_pct_abs_err": a["mean_pct_abs_err"],
                 "mean_hand_tracked": a["mean_hand_tracked"],

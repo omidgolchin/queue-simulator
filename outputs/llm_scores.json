@@ -68,7 +68,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 1.0658141036401502e-15
+   "mae_min": 1.0658141036401502e-15,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -141,7 +143,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -214,7 +218,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 2.1649348980190553e-15
+   "mae_min": 2.1649348980190553e-15,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -287,7 +293,9 @@
    "answered": 20,
    "tracked": 19,
    "tracked_share": 0.95,
-   "mae_min": 0.011500000000000104
+   "mae_min": 0.011500000000000104,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -360,7 +368,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -433,7 +443,9 @@
    "answered": 6,
    "tracked": 6,
    "tracked_share": 0.3,
-   "mae_min": 0.0
+   "mae_min": 0.0,
+   "n_errs": 6,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -506,7 +518,9 @@
    "answered": 6,
    "tracked": 6,
    "tracked_share": 0.3,
-   "mae_min": 0.0
+   "mae_min": 0.0,
+   "n_errs": 6,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -579,7 +593,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -652,7 +668,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -725,7 +743,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -798,7 +818,9 @@
    "answered": 20,
    "tracked": 19,
    "tracked_share": 0.95,
-   "mae_min": 0.08300000000000045
+   "mae_min": 0.08300000000000045,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -857,7 +879,9 @@
    "answered": 4,
    "tracked": 4,
    "tracked_share": 0.2,
-   "mae_min": 0.0
+   "mae_min": 0.0,
+   "n_errs": 4,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -930,7 +954,9 @@
    "answered": 20,
    "tracked": 17,
    "tracked_share": 0.85,
-   "mae_min": 0.2020000000000001
+   "mae_min": 0.2020000000000001,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -999,7 +1025,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 3.497202527569243e-16
+   "mae_min": 3.497202527569243e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1072,7 +1100,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 2.6645352591003756e-16
+   "mae_min": 2.6645352591003756e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1145,7 +1175,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1201,7 +1233,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1274,7 +1308,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1345,7 +1381,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1416,7 +1454,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1487,7 +1527,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1558,7 +1600,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 1.6653345369377348e-16
+   "mae_min": 1.6653345369377348e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1627,7 +1671,9 @@
    "answered": 20,
    "tracked": 15,
    "tracked_share": 0.75,
-   "mae_min": 0.1995000000000001
+   "mae_min": 0.1995000000000001,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1698,7 +1744,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 5.551115123125783e-16
+   "mae_min": 5.551115123125783e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1769,7 +1817,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 0.00550000000000011
+   "mae_min": 0.00550000000000011,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1838,7 +1888,9 @@
    "answered": 20,
    "tracked": 19,
    "tracked_share": 0.95,
-   "mae_min": 0.04350000000000066
+   "mae_min": 0.04350000000000066,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1917,7 +1969,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -1986,7 +2040,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 6.439293542825908e-16
+   "mae_min": 6.439293542825908e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2055,7 +2111,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 3.497202527569243e-16
+   "mae_min": 3.497202527569243e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2124,7 +2182,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2197,7 +2257,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 1.0658141036401502e-15
+   "mae_min": 1.0658141036401502e-15,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2270,7 +2332,9 @@
    "answered": 13,
    "tracked": 13,
    "tracked_share": 0.65,
-   "mae_min": 8.540177112501205e-17
+   "mae_min": 8.540177112501205e-17,
+   "n_errs": 13,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2343,7 +2407,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 2.1649348980190553e-15
+   "mae_min": 2.1649348980190553e-15,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2416,7 +2482,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 1.304512053934559e-16
+   "mae_min": 1.304512053934559e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2489,7 +2557,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2562,7 +2632,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2635,7 +2707,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2708,7 +2782,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 2.4702462297909734e-16
+   "mae_min": 2.4702462297909734e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2779,7 +2855,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2850,7 +2928,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2919,7 +2999,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 6.578071420904052e-16
+   "mae_min": 6.578071420904052e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -2998,7 +3080,9 @@
    "answered": 0,
    "tracked": 0,
    "tracked_share": 0.0,
-   "mae_min": NaN
+   "mae_min": NaN,
+   "n_errs": 0,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -3067,7 +3151,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 6.439293542825908e-16
+   "mae_min": 6.439293542825908e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -3136,7 +3222,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 3.497202527569243e-16
+   "mae_min": 3.497202527569243e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  },
@@ -3205,7 +3293,9 @@
    "answered": 20,
    "tracked": 20,
    "tracked_share": 1.0,
-   "mae_min": 2.6645352591003756e-16
+   "mae_min": 2.6645352591003756e-16,
+   "n_errs": 20,
+   "n_scorable": 20
   },
   "verdict": "scored"
  }
