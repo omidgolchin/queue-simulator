@@ -1,0 +1,23 @@
+{
+ "cases": [
+  {
+   "name": "Hand instance F2 \u2014 20 customers, 6 servers, FIFO",
+   "python": "mean wait 0.27 min",
+   "javascript": "mean wait 0.27 min",
+   "agree": true
+  },
+  {
+   "name": "Hand instance B2 \u2014 20 customers, abandonment",
+   "python": "mean wait 0.24 min",
+   "javascript": "mean wait 0.24 min",
+   "agree": true
+  },
+  {
+   "name": "Erlang C, bank preset (60 calls/hour, 4-minute calls, 6 agents)",
+   "python": "mean wait 0.5695 min",
+   "javascript": "mean wait 0.5695 min",
+   "agree": true
+  }
+ ],
+ "all_agree": true
+}

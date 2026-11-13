@@ -1,0 +1,24 @@
+# FREEZE MANIFEST — queue-simulator (P11)
+# Frozen: 2026-11-13 (America/New_York) — before the LLM-check main run.
+# Re-issued 2026-11-13 for one logged amendment (PLAN.md amendment
+# log, 2026-11-13): a presentation fix in analyze.py's summary table
+# (Hand-mode close column). No scoring, prompts, thresholds or
+# ground truth changed.
+# Verify: sha256sum -c FREEZE_MANIFEST.txt (ignoring these comment lines)
+
+b4e8b7894d6909ca123512326bd27773f58660dd5a8fd8a48d55f776be02abfb  PLAN.md
+290e32969046b8b21aed246e2d48626b2d85a30d8653fcaa8314bc4d7a686036  config.yaml
+4e3a8d3186f9b608273c951f92fa15be5a8311c821769147f91e604380a149a5  requirements.txt
+2b84cffb5e14a9553fb9fe37832886719857371278956c0f1147fd6a33cfb95d  prompts/direct.md
+8b97a48972511b4142f56da817e53e242da7eb2a9b7cc417bdfea07f981a7152  prompts/code.md
+563851a3c77491978e70f5590e4477bff43daa4dde46a700e7cb2dcf12f4ab28  prompts/hand.md
+a92a61b3dbfbbb2642f3a35fd5a9cdca9fabb57c4821a3f77608416012a49a71  src/queuesim/__init__.py
+0719b7db8043a267b5e79c5581ac0cde6b7c312c9181df440a8f48a927c9286a  src/queuesim/erlang.py
+e303dcd530baa944caa30866369d01e1105bd20504666f791244c520c8590091  src/queuesim/simulate.py
+d350bda6ce333272411ae79b838f2d5fbc46db0058131cff9660d53909f9804d  src/queuesim/scenarios.py
+f0bd2b05e83b22031921626b3fa351f2f69cb68c13bcddf6bd9d64fefab338cf  src/queuesim/llm.py
+7e7f3c43247f406875828aa3e74772906dccac8064933e2db93057286c3f2287  src/queuesim/sandbox.py
+0918093ec4a4a49c0ba933c01494eb81c9eff9540092c0c34211db1a5f28f9fa  src/queuesim/score.py
+1787800ebbac4bfd95aa5bffcf01f4e2592137de9b5985878e64a89b5c9f552b  src/queuesim/validate.py
+6f9c910e749a4a629a3a6a2dc4ef4069d5d7fe2f6686d65d66b238bd7c234621  src/queuesim/analyze.py
+06537bb5b0db12380f52c4c7002bcfcdb5ebedc7267deede9bd6d0d3190da3e3  docs/qsim.js

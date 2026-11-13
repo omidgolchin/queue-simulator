@@ -1,0 +1,26 @@
+# Frozen before the LLM-check main run (see FREEZE_MANIFEST.txt).
+# Anything that changes the numbers changes this file and the plan first.
+
+simulation:
+  target_seconds: 20            # the service target: answered within 20 s
+  validation:
+    replications: 16            # per setting, 12 M/M/c settings
+  truth_replications: 200       # SimPy replications behind beyond-formula truth
+  beyond_replications: 40       # per beyond-formula contrast case
+  seed_base: 20261113
+
+llm_check:
+  temperature: 0.7
+  max_tokens: 4000
+  seed_base: 20261113
+  modes: [direct, code, hand]
+  scenarios: [F1, F2, F3, F4, F5, T1, T2, T3, T4, T5, B1, B2, B3, B4, B5]
+  pilot_scenarios: [F2, F4, T1, B1, B4]
+  # Filled in after the pilot, before the freeze: the cheapest models
+  # from different families that answered in format, dropping any whose
+  # code failed to run in more than half of the 5 pilot scenarios.
+  models: [openai/gpt-oss-120b, zai-org/GLM-5.3-Flash, MiniMaxAI/MiniMax-M3.1-Flash]
+  scoring:
+    wait_close_rel_err: 0.25    # mean-wait answer is "close" within 25%
+    pct_close_points: 10        # percentage answer "close" within 10 points
+    hand_tracked_abs_err_min: 0.11
