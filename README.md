@@ -1,115 +1,47 @@
-# Queue simulator: how many staff does a queue need?
+# Call Center Staffing Planner
 
-A discrete-event queue simulator (SimPy) with the Erlang C staffing
-formulas built in, made to answer one question: how many staff does a
-queue need? Its sharpest result: staffing for the *average* hour of a
-real-shaped service day leaves 41.4% of rush-hour callers waiting over
-20 seconds.
+For anyone who runs a phone line (a support desk, a clinic, a help line): enter your calls per hour and call length, get how many agents to put on the phones and how many people to schedule to hit your service target, for one hour or a whole day.
 
-I built this to learn discrete-event simulation properly: build the
-simulator, check it against the queueing formulas it should reproduce,
-use it where the formulas stop working, and then check whether an LLM
-can do the same jobs. The setting throughout is a call centre, a bank,
-a clinic desk: callers arrive at random, each call takes a random
-time, and a small team answers.
+![The live queue: calls answered quickly at the recommended 16 agents, then the queue builds with three agents removed](docs/hero.gif)
 
-![The live queue: staffed with 4 agents for the average hour, the queue builds once arrivals hit the rush-hour rate of 75 calls an hour](docs/hero.gif)
+![The planner: 16 agents for 120 calls an hour, with occupancy, hang-up and what-if checks](docs/screenshots/desktop.png)
 
-## The result
+**Use it:** https://omidgolchin.github.io/queue-simulator/ (runs in your browser; nothing you type leaves it)
 
-The SimPy simulator reproduces Erlang C: across 12 M/M/c settings
-(1–10 servers, utilisation 0.5–0.95, 16 replications each) the
-formula's value falls inside the simulation's 95% confidence interval
-in 12 of 12 settings, and Little's law holds within 0.12% in the runs'
-own counters. Where the formula's assumptions break, it misleads in
-specific ways: with very variable (lognormal, CV 2) call lengths the
-true average wait is 2.05 min where Erlang C says 1.07; with impatient
-callers at ρ = 0.95 the served callers' wait falls to 1.3 min because
-14.7% of callers hang up, an effect the formula cannot see (with no
-abandonment the simulation gives 26.9 min and the formula 26.3 min);
-and on a day shaped like real arrival data (NYC 311), staffing for
-the *average* hour leaves 41.4% of callers waiting over 20 seconds in
-the rush, with day-average waits ten times the formula's prediction. The
-LLM check (15 scenarios × 3 modes × 3 models): asked directly, all
-three models were close on 9 of 15 scenarios — fine where the formula
-applies, weak where it breaks (1–2 of the 5 beyond-formula cases);
-asked to write code instead, one model's programs were close on 14 of
-15 while the other two usually got one of the two requested numbers
-right; asked to simulate 20 customers by hand, the models tracked
-45–58% of customers to within a few seconds before drifting or
-stopping early; and five of six runs correctly said the overloaded
-centre has no steady state at all.
+## What it does
 
-![Average wait vs number of agents, simulation vs formula](results/figures/wait_vs_servers.png)
+- **Plan one hour.** Calls per hour, average handle time and your service target (for example 80% answered within 20 seconds) give the agents to put on the phones, the people to schedule after shrinkage, and the expected service level, average wait and how busy agents will be.
+- **Plan a whole day.** Calls per day and the shape of the day (a typical weekday, flat, or your own hourly counts) give agents hour by hour, total agent-hours and paid hours, cost, and a CSV to take into a scheduling tool.
+- **Watch the hour.** The recommended staffing runs live, one second per minute; remove an agent and watch the queue build.
+- **Fill from my description.** Describe your center in plain words or paste an interval report from your phone system; a language model (your key, or copy the prompt into any assistant) fills the form, quoting the phrase each number came from. The model never computes the answer.
+- **Copy summary / Copy link / Download CSV.**
 
-## Playground
+## Built-in checks
 
-The playground is in [`docs/`](docs/index.html) (open it with any
-static server, e.g. `python3 -m http.server` inside `docs/`). Sliders
-set the arrival rate, call length, agents and caller patience; a small
-JavaScript twin of the simulator runs the queue live while Erlang C
-answers the staffing question beside it: "how many agents to answer
-80% of calls within 20 seconds?" The wait-vs-servers chart is
-precomputed from the Python simulator (20 replications per point),
-and the page shows how the LLMs did. The JavaScript and
-Python implementations are checked against each other on fixed cases
-(`scripts/check_js.py`); screenshots are in `docs/screenshots/`.
+| Check | What it does |
+|---|---|
+| Occupancy cap | Never recommends agents busier than the cap (default 90%): meeting the target with agents at 95% is not a schedulable plan. The verdict says when the cap, not the target, set the number. |
+| Callers who hang up | Erlang C assumes nobody hangs up and overstates waits when they do. With a patience set, the recommendation comes from simulation, and hung-up calls count as missed. |
+| Shrinkage | Converts agents on the phones into people to schedule. |
+| Busier than forecast | What 10% more calls or 10% longer calls would need, and what service drops to if they arrive. |
+| One agent short | The service level with one fewer agent: how much margin the plan has. |
+| Hour by hour (day plan) | Shows what staffing the whole day for its average hour would do to the peak. |
 
-## Use the code
+## Design decisions
 
-```bash
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+- **Erlang C per hour, then a staffing search.** The standard workforce-management method (Gans, Koole & Mandelbaum 2003): the fewest agents whose service level meets the target, interval by interval.
+- **Occupancy cap after the service search.** The target and the cap are separate constraints; the recommendation is the larger of the two answers, and the page says which one bound.
+- **Simulation only where the formula fails.** With callers who hang up, the planner simulates the queue (20 independent 8-hour runs after a 1-hour warm-up, the same random numbers for every agent count so the curve is smooth). The browser engine agrees with this repository's SimPy simulator within confidence intervals on abandonment, waits and occupancy (tested).
+- **Hung-up calls count against the service level.** The conservative convention: a caller who gave up was not served within the target.
+- **The day plan uses Erlang C.** It ignores hang-ups, which makes it slightly generous; a busy hour can be checked by simulation in the one-hour view.
+- **What-ifs use the same engine as the recommendation** (simulation when callers hang up, Erlang C otherwise), so the margins are comparable.
 
-PYTHONPATH=src .venv/bin/python - <<'EOF'
-from queuesim.erlang import mmc, servers_needed
-r = mmc(lam=30/60, mu=1/5.0, c=4)      # 30 calls/hour, 5-minute calls
-print(r.mean_wait_q)                   # 1.07 minutes
-print(servers_needed(30/60, 1/5.0, 20/60))   # 5 agents for 80% in 20 s
+## Validation
 
-from queuesim.simulate import QueueConfig, run_replications
-cfg = QueueConfig(servers=4, service_mean=5.0, arrival_rate=30/60,
-                  patience_mean=10.0, warmup=600, duration=6600)
-print(run_replications(cfg, 20)["summary"]["mean_wait_q"])
-EOF
-```
-
-Regenerate every number and figure from the saved outputs:
-
-```bash
-make validate    # the simulation studies (cached; slow the first time)
-make reproduce   # results/summary.md + figures + docs/data from outputs/
-make test        # the test suite
-```
-
-## How it was done
-
-- **Simulator**: SimPy, one queue, c servers; Poisson or hourly
-  time-varying arrivals; exponential/lognormal/uniform service;
-  exponential patience; two-class non-preemptive priority. Statistics
-  from independent replications with warm-up and t intervals, because
-  one long run hides its own error (Law, ch. 9).
-- **Validation**: Erlang C and Little's law as above; the
-  deterministic event checker (`compute_waits`) is a second,
-  independent implementation and is cross-checked against SimPy on
-  identical fixed input, including abandonment and priority cases.
-- **Arrival data**: NYC 311 requests (January 2024) aggregated by
-  hour, used only for the *shape* of a day (peak hour 5.5× the
-  quietest). The spec's first choice, the Technion SEE Lab bank data,
-  is registration-gated and was not used; see `DATA_SOURCES.md` and
-  `DECISIONS.md`.
-- **LLM check**: 15 scenarios: 5 where Erlang C applies directly, 5
-  traps where it applies only after a unit conversion or a derived
-  arrival rate, 5 where it does not apply (variable service,
-  abandonment, rush hours, an overloaded centre, priority classes).
-  Each model tried each scenario three ways: estimate directly, write
-  Python and run it in a sandbox, and simulate 20 given customers by
-  hand. Ground truth: Erlang C, or 200 simulator replications.
-  Models (Together AI, chosen by the pre-registered pilot rule in
-  `PLAN.md`): `openai/gpt-oss-120b`, `zai-org/GLM-5.3-Flash`,
-  `MiniMaxAI/MiniMax-M3.1-Flash`, temperature 0.7. Full design,
-  prompts, thresholds and the pilot table are in `PLAN.md`; the plan
-  was frozen (`FREEZE_MANIFEST.txt`) before the main run. Total model
-  spend: $0.38 of the $5 cap (`SPEND.md`).
+- **36 tests** (`make test`): Erlang C against the raw-sum formula; the staffing search, occupancy cap, shrinkage and day plan in Python; the JavaScript against the Python on four staffing cases and a day plan; the browser simulation against SimPy on two settings with hang-ups; the browser simulation against Erlang C without hang-ups; the live animation against the simulation on average; the AI assist's prompt and reply handling.
+- **The simulator behind it** reproduces Erlang C in 12 of 12 settings (inside the 95% interval) and Little's law within 0.12% ([results/summary.md](results/summary.md)).
+- **AI assist extraction:** a 20-item test set (`assist/testset.json`: descriptions, interval reports, seconds vs minutes, shrinkage given as parts, cost per day instead of per hour, text with no numbers). Score any model with `ANTHROPIC_API_KEY=... node scripts/eval_assist.js`. Not yet run for this release.
+- Checked on desktop and phone widths, in light and dark themes.
 
 ## What I learned
 
@@ -122,26 +54,47 @@ make test        # the test suite
   state tracking. The instance rule had to change (take a busy
   20-customer window from a longer stream) before the plan could
   freeze.
-- For the overloaded centre I nearly scored models against a
+- For the overloaded center I nearly scored models against a
   finite-day average wait. There is no steady state there, so the
   only right answer is to say so, and the check now scores exactly
   that.
-- The standard bank call-centre dataset is registration-gated, so I
+- The standard bank call-center dataset is registration-gated, so I
   used NYC 311 counts for the shape of a day instead. Only the shape
   is borrowed, and the write-up has to keep saying so.
 
+- Planning one hour well is not enough: the planner needed a day view because the rush hour is where averages fail.
+
+## Research notes
+
+The studies behind the tool, kept out of it on purpose. Full numbers in [results/summary.md](results/summary.md).
+
+- **Validation.** Across 12 M/M/c settings the formula falls inside the simulation's 95% interval in 12 of 12; Little's law holds within 0.12%. ![Average wait vs number of agents](results/figures/wait_vs_servers.png)
+- **Where the formula breaks.** Very variable call lengths (lognormal, CV 2) doubled the average wait at the same mean (2.05 vs 1.07 min). With impatient callers at 95% utilization, 14.7% hang up and the served callers' wait collapses from 26 min to 1.3 min.
+- **Rush hours.** On a day shaped like NYC 311 demand, staffing for the average hour left 41.4% of callers waiting over 20 seconds in the rush.
+- **Can a language model do queueing math?** 15 scenarios, three open models, three ways. Asked directly, all three were close on 9 of 15, weak where the formula breaks. Asked to write code, one model was close on 14 of 15. Asked to simulate 20 customers by hand, they tracked about half before drifting. A small check, not a ranking.
+
+## Run it
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+make test        # all tests, including the JavaScript engine
+cd docs && python3 -m http.server 8000   # the tool at http://localhost:8000
+make validate    # the simulation studies (cached; slow the first time)
+make reproduce   # results/summary.md, figures and docs/data from outputs/
+```
+
+## Layout
+
+- `docs/`: the tool (plain HTML and JavaScript, no build step). `staffing.js` holds the staffing search, the hang-up simulation and the live queue; `qsim.js` Erlang C and the event checker; `tool-common.js` and `tool.css` the shared tool kit; `assist-config.js` the AI assist's prompt; `nyc-shape.js` the weekday shape.
+- `src/queuesim/`: `staffing.py` (reference for the planner), `erlang.py`, `simulate.py` (SimPy), and the research-notes studies and LLM check.
+- `assist/` and `scripts/eval_assist.js`: the assist's test set and scorer.
+- `PLAN.md`, `FREEZE_MANIFEST.txt`, `DECISIONS.md`, `SPEND.md`: the frozen plan, its hashes, every judgment call and the costs of the research experiments.
+
 ## Limitations
 
-One queue, identical servers, no skills-based routing; the staffing
-tool's world is the M/M/c world plus the four demonstrated exceptions.
-Arrival and service distributions are stylised. The NYC 311 profile
-lends a realistic *shape* to the day, but 311 requests are not calls
-to one centre, and no real call-length distribution was available
-under a usable licence. Waiting-time statistics count served callers;
-abandoned callers are reported separately. The LLM results are for
-three open-weight models, one prompt wording, temperature 0.7, on
-these 15 scenarios — a map of these models on this task, not a
-ranking of models in general.
+- One queue, identical agents, no skills-based routing.
+- Calls are assumed to vary in length like a typical center (exponential). Steadier calls need fewer agents and very variable calls need more; the research notes show by how much.
+- The weekday shape is borrowed from NYC 311 requests, which are not calls to one center: it is a realistic shape, not a forecast. Use your own counts for planning.
 
 ## References
 
@@ -156,11 +109,13 @@ ranking of models in general.
    L = λW." *Operations Research* 9(3), 383–387.
    https://doi.org/10.1287/opre.9.3.383
 4. SimPy documentation, version 4.1.2. https://simpy.readthedocs.io/en/latest/
-5. NYC Open Data, "311 Service Requests from 2010 to Present".
+5. Gans, N., Koole, G., & Mandelbaum, A. (2003). Telephone call centers: Tutorial, review, and research prospects. *Manufacturing & Service Operations Management*, 5(2), 79–141.
+6. Garnett, O., Mandelbaum, A., & Reiman, M. (2002). Designing a call center with impatient customers. *Manufacturing & Service Operations Management*, 4(3), 208–227.
+7. NYC Open Data, "311 Service Requests from 2010 to Present".
    https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9
 
 ## Citation and license
 
-Omid Golchin. *queue-simulator*, 2026. See `CITATION.cff`.
+Omid Golchin. *Call Center Staffing Planner* (repository queue-simulator), 2026. See `CITATION.cff`.
 Code: MIT License (`LICENSE`). The aggregated NYC 311 hourly counts
 in `data/` are public open data; see `DATA_SOURCES.md`.

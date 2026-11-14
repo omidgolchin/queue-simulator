@@ -3,7 +3,7 @@ message: "If you use this software, please cite it as below."
 authors:
   - family-names: "Golchin"
     given-names: "Omid"
-title: "queue-simulator: a discrete-event queue simulator checked against the queueing formulas"
+title: "Call Center Staffing Planner: how many agents, hour by hour"
 version: "1.0.0"
 date-released: 2026-11-13
 license: MIT

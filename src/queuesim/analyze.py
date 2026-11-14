@@ -25,7 +25,8 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "outputs"
 RESULTS = ROOT / "results"
 FIGS = RESULTS / "figures"
-DOCS_DATA = ROOT / "docs" / "data"
+DOCS_DATA = ROOT / "docs" / "data"      # files the tool page or its tests use
+RES_DATA = ROOT / "results" / "data"    # research-notes data (not used by the page)
 
 
 def _load_jsonl(path: Path) -> list[dict]:
@@ -453,7 +454,8 @@ def write_summary(studies: dict, scored: list[dict], agg: dict,
 
 def export_docs_data(studies: dict, agg: dict | None = None) -> None:
     DOCS_DATA.mkdir(parents=True, exist_ok=True)
-    (DOCS_DATA / "curves.json").write_text(json.dumps(
+    RES_DATA.mkdir(parents=True, exist_ok=True)
+    (RES_DATA / "curves.json").write_text(json.dumps(
         {"presets": studies["playground"],
          "arrivals_staffing": studies["arrivals"]["scaled_staffing_by_hour"],
          "servers_at_mean_rate": studies["arrivals"]["servers_at_mean_rate"]},
@@ -473,7 +475,7 @@ def export_docs_data(studies: dict, agg: dict | None = None) -> None:
                 "mean_hand_tracked": a["mean_hand_tracked"],
                 "mean_hand_mae": a["mean_hand_mae"],
             })
-        (DOCS_DATA / "llm_check.json").write_text(json.dumps(
+        (RES_DATA / "llm_check.json").write_text(json.dumps(
             {"models_modes": rows}, indent=1))
 
 
