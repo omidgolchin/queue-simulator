@@ -1,0 +1,246 @@
+[
+ {
+  "id": "desc-1",
+  "text": "We're a 12-person support team. On a normal weekday we get about 1,200 calls between 8am and 8pm, busiest mid-morning around 160 an hour. Calls average 5 and a half minutes plus about 30 seconds of notes. Our promise is 80% answered within 30 seconds. Most people give up after roughly 3 minutes on hold. Breaks, training and meetings eat about 30% of paid time. An agent costs us about $27 an hour.",
+  "expected": {
+   "calls": 160,
+   "aht": 6,
+   "tPct": 80,
+   "tSec": 30,
+   "patience": 3,
+   "shrink": 30,
+   "callsPerDay": 1200,
+   "openFrom": 8,
+   "openTo": 20,
+   "cost": 27
+  }
+ },
+ {
+  "id": "report-1",
+  "text": "Interval report, Tue\n08:00 64\n09:00 118\n10:00 151\n11:00 147\n12:00 120\n13:00 126\n14:00 131\n15:00 109\n16:00 88\n17:00 61\nAHT 372s | SL target 80/20 | Avg abandon time 145s",
+  "expected": {
+   "aht": 6.2,
+   "tPct": 80,
+   "tSec": 20,
+   "patience": 2.4167,
+   "callsPerDay": 1115,
+   "openFrom": 8,
+   "openTo": 18,
+   "hourly": [
+    64,
+    118,
+    151,
+    147,
+    120,
+    126,
+    131,
+    109,
+    88,
+    61
+   ]
+  }
+ },
+ {
+  "id": "short-1",
+  "text": "About 90 calls an hour, 4 minute calls, 80/20.",
+  "expected": {
+   "calls": 90,
+   "aht": 4,
+   "tPct": 80,
+   "tSec": 20
+  }
+ },
+ {
+  "id": "seconds-aht",
+  "text": "Average handle time is 285 seconds and we see 210 calls in our peak hour. Target: 90% in 15 seconds.",
+  "expected": {
+   "calls": 210,
+   "aht": 4.75,
+   "tPct": 90,
+   "tSec": 15
+  }
+ },
+ {
+  "id": "per-day-only",
+  "text": "The clinic line gets roughly 400 calls a day, open 9 to 5. Calls take about 4 minutes. We want 85% of calls picked up within 30 seconds.",
+  "expected": {
+   "aht": 4,
+   "tPct": 85,
+   "tSec": 30,
+   "callsPerDay": 400,
+   "openFrom": 9,
+   "openTo": 17
+  }
+ },
+ {
+  "id": "patience-seconds",
+  "text": "Callers abandon after around 90 seconds on average. 60 calls per hour, 3 minute handle time, service level 80 in 20.",
+  "expected": {
+   "calls": 60,
+   "aht": 3,
+   "tPct": 80,
+   "tSec": 20,
+   "patience": 1.5
+  }
+ },
+ {
+  "id": "shrink-fraction",
+  "text": "Shrinkage runs about a third. Volume is 300 calls/hour at the peak, AHT 7 min, goal 80% within 60 seconds.",
+  "expected": {
+   "calls": 300,
+   "aht": 7,
+   "tPct": 80,
+   "tSec": 60,
+   "shrink": 33.3333
+  }
+ },
+ {
+  "id": "no-target",
+  "text": "We get 50 calls an hour and calls are about 8 minutes long. How many people do we need?",
+  "expected": {
+   "calls": 50,
+   "aht": 8
+  }
+ },
+ {
+  "id": "talk-plus-wrap",
+  "text": "Talk time averages 4:30 and after-call work 1:30. 120 calls in the busiest hour. SLA 80/30. We pay $22/hour per agent.",
+  "expected": {
+   "calls": 120,
+   "aht": 6,
+   "tPct": 80,
+   "tSec": 30,
+   "cost": 22
+  }
+ },
+ {
+  "id": "nothing",
+  "text": "Our queue is a mess on Mondays and people are complaining about wait times. What should we do?",
+  "expected": {}
+ },
+ {
+  "id": "half-hour-report",
+  "text": "Calls per hour today: 9am 42, 10am 77, 11am 81, 12pm 66, 1pm 59, 2pm 70, 3pm 52. AHT 5 min.",
+  "expected": {
+   "aht": 5,
+   "callsPerDay": 447,
+   "openFrom": 9,
+   "openTo": 16,
+   "hourly": [
+    42,
+    77,
+    81,
+    66,
+    59,
+    70,
+    52
+   ]
+  }
+ },
+ {
+  "id": "daily-and-peak",
+  "text": "Daily volume 2,600 calls; peak hour around 300. 6-minute calls. 80% in 20s. 35% shrinkage. Open 7am to 11pm.",
+  "expected": {
+   "calls": 300,
+   "aht": 6,
+   "tPct": 80,
+   "tSec": 20,
+   "shrink": 35,
+   "callsPerDay": 2600,
+   "openFrom": 7,
+   "openTo": 23
+  }
+ },
+ {
+  "id": "no-hangups",
+  "text": "Nobody hangs up, it's an internal IT line. 25 tickets by phone each hour, 10 minutes each, 80% answered within 60 seconds.",
+  "expected": {
+   "calls": 25,
+   "aht": 10,
+   "tPct": 80,
+   "tSec": 60
+  }
+ },
+ {
+  "id": "percent-words",
+  "text": "Target service level: ninety percent of calls within thirty seconds. 140 calls an hour. Handle time six minutes.",
+  "expected": {
+   "calls": 140,
+   "aht": 6,
+   "tPct": 90,
+   "tSec": 30
+  }
+ },
+ {
+  "id": "minutes-aht-decimal",
+  "text": "Peak 75 calls/hour. AHT 5.2 min. Patience about 4 minutes. Target 80/20.",
+  "expected": {
+   "calls": 75,
+   "aht": 5.2,
+   "tPct": 80,
+   "tSec": 20,
+   "patience": 4
+  }
+ },
+ {
+  "id": "csv-hourly",
+  "text": "hour,calls\n10,55\n11,90\n12,120\n13,110\n14,80\naht_sec,240",
+  "expected": {
+   "aht": 4,
+   "callsPerDay": 455,
+   "openFrom": 10,
+   "openTo": 15,
+   "hourly": [
+    55,
+    90,
+    120,
+    110,
+    80
+   ]
+  }
+ },
+ {
+  "id": "cost-per-day",
+  "text": "Agents cost $200 a day for an 8-hour shift. 100 calls an hour, 5 minutes each, 80/20.",
+  "expected": {
+   "calls": 100,
+   "aht": 5,
+   "tPct": 80,
+   "tSec": 20,
+   "cost": 25
+  }
+ },
+ {
+  "id": "ambiguous-calls",
+  "text": "We handled 3,000 calls last week across 5 days, 10 hours a day. Calls run 4 minutes.",
+  "expected": {
+   "aht": 4,
+   "calls": 60,
+   "callsPerDay": 600
+  }
+ },
+ {
+  "id": "shrink-explicit",
+  "text": "Breaks 10%, training 8%, meetings 7%. Calls: 180 per hour at peak, 5-minute handle time, 80 in 20.",
+  "expected": {
+   "calls": 180,
+   "aht": 5,
+   "tPct": 80,
+   "tSec": 20,
+   "shrink": 25
+  }
+ },
+ {
+  "id": "open-24",
+  "text": "We're open 24 hours, about 4,800 calls a day, 3.5 minute calls, target 80% in 20 seconds, callers hang up after 2 minutes.",
+  "expected": {
+   "aht": 3.5,
+   "tPct": 80,
+   "tSec": 20,
+   "patience": 2,
+   "callsPerDay": 4800,
+   "openFrom": 0,
+   "openTo": 24
+  }
+ }
+]

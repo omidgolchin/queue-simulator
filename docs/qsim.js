@@ -6,7 +6,7 @@
  *   src/queuesim/simulate.py, rule for rule; scripts/check_js.py
  *   verifies the two agree exactly on fixed cases (see
  *   docs/data/check_cases.json).
- * - LiveSim is the small stochastic simulator behind the animation.
+ * - The animation and the hang-up simulation live in staffing.js.
  */
 
 function erlangB(c, a) {
@@ -121,92 +121,6 @@ function mulberry32(seed) {
   };
 }
 
-/* Small stochastic queue for the animation. Mirrors the Python model:
- * Poisson arrivals, exponential service, exponential patience when set.
- * step(dtMinutes) advances the simulation; state is read by app.js. */
-class LiveSim {
-  constructor(opts) {
-    this.reset(opts);
-  }
-  reset({ lamPerMin, serviceMean, servers, patienceMean = null, seed = 1 }) {
-    this.lam = lamPerMin; this.serviceMean = serviceMean;
-    this.servers = servers; this.patienceMean = patienceMean;
-    this.rng = mulberry32(seed);
-    this.now = 0;
-    this.busyUntil = new Array(servers).fill(0);   // per server
-    this.serving = new Array(servers).fill(null);  // {startService}
-    this.queue = [];                               // {arrived, deadline}
-    this.nextArrival = this._exp(lamPerMin);
-    this.served = 0; this.abandoned = 0; this.arrivals = 0;
-    this.waitSum = 0; this.overTarget = 0;
-    this.busyTime = 0; this.lastTick = 0;
-  }
-  _exp(ratePerMin) { return -Math.log(1 - this.rng()) / ratePerMin; }
-  configure({ lamPerMin, serviceMean, servers, patienceMean }) {
-    if (lamPerMin !== undefined) this.lam = lamPerMin;
-    if (serviceMean !== undefined) this.serviceMean = serviceMean;
-    if (patienceMean !== undefined) this.patienceMean = patienceMean;
-    if (servers !== undefined && servers !== this.servers) {
-      this.servers = servers;
-      this.busyUntil = new Array(servers).fill(0);
-      this.serving = new Array(servers).fill(null);
-    }
-  }
-  step(dt) {
-    const end = this.now + dt;
-    while (true) {
-      // next event: arrival, earliest service end, earliest deadline
-      let tNext = this.nextArrival, kind = "arrival";
-      for (let s = 0; s < this.servers; s++) {
-        if (this.serving[s] && this.busyUntil[s] < tNext) { tNext = this.busyUntil[s]; kind = "depart"; }
-      }
-      for (const q of this.queue) {
-        if (q.deadline !== null && q.deadline < tNext) { tNext = q.deadline; kind = "abandon"; }
-      }
-      if (tNext > end) break;
-      this.busyTime += this.serving.filter(Boolean).length * (tNext - this.now);
-      this.now = tNext;
-      if (kind === "arrival") {
-        this.arrivals++;
-        const cust = { arrived: this.now, deadline: this.patienceMean ? this.now + this._exp(1 / this.patienceMean) : null };
-        const freeIdx = this.serving.findIndex((s) => s === null);
-        if (freeIdx >= 0 && this.queue.length === 0) this._start(freeIdx, cust);
-        else this.queue.push(cust);
-        this.nextArrival = this.now + this._exp(this.lam);
-      } else if (kind === "depart") {
-        const s = this.busyUntil.indexOf(tNext);
-        this.serving[s] = null; this.busyUntil[s] = 0;
-        if (this.queue.length > 0) this._start(s, this.queue.shift());
-      } else { // abandon: remove the queue member whose deadline hit
-        const qi = this.queue.findIndex((q) => q.deadline === tNext);
-        if (qi >= 0) { this.queue.splice(qi, 1); this.abandoned++; }
-      }
-    }
-    this.busyTime += this.serving.filter(Boolean).length * (end - this.now);
-    this.now = end;
-  }
-  _start(serverIdx, cust) {
-    const wait = this.now - cust.arrived;
-    this.served++;
-    this.waitSum += wait;
-    if (wait > 20 / 60) this.overTarget++;
-    const svc = this._exp(1 / this.serviceMean);
-    this.serving[serverIdx] = { since: this.now };
-    this.busyUntil[serverIdx] = this.now + svc;
-  }
-  stats() {
-    return {
-      now: this.now, arrivals: this.arrivals, served: this.served,
-      abandoned: this.abandoned,
-      meanWait: this.served ? this.waitSum / this.served : 0,
-      pctOverTarget: this.served ? (100 * this.overTarget / this.served) : 0,
-      utilisation: this.now > 0 ? this.busyTime / (this.servers * this.now) : 0,
-      queueLen: this.queue.length,
-      busy: this.serving.filter(Boolean).length,
-    };
-  }
-}
-
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { erlangB, erlangC, mmc, serversNeeded, computeWaits, LiveSim, mulberry32 };
+  module.exports = { erlangB, erlangC, mmc, serversNeeded, computeWaits, mulberry32 };
 }

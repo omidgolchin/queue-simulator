@@ -119,3 +119,11 @@ checkpoints; log and continue.)
     openai/gpt-oss-120b, zai-org/GLM-5.3-Flash,
     MiniMaxAI/MiniMax-M3.1-Flash. Projected main-run cost ≈ $0.22
     against the $5 cap.
+
+## 2026-11-13: v2, rebuilt as the Call Center Staffing Planner
+
+- The page mixed a simulator, a staffing question, a theory section and an LLM table. v2 does one job: how many agents to put on the phones and schedule, for one hour or a day. Studies moved to the README's Research notes and `results/`.
+- Staffing rule: Erlang C staffing search for the service target, then raised for the occupancy cap (default 90%); the page says which constraint bound.
+- With callers who hang up, the recommendation comes from simulation of the M/M/c+M queue (memoryless, so simulated as a Markov chain with FIFO customers; 20 runs of 8 h after 1 h warm-up, common random numbers across agent counts). Hung-up calls count as missed in the service level. Checked against the SimPy simulator in tests.
+- The live animation uses the same chain (the v1 animation engine was replaced; its counters did not match the simulator).
+- Day plan: Erlang C per hour (standard interval staffing), minimum agents per hour, shrinkage, CSV export. It ignores hang-ups and says so.

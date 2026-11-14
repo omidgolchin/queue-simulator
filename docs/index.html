@@ -1,162 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Queue Simulator — how many staff does a queue need?</title>
+<title>Call Center Staffing Planner: how many agents, hour by hour</title>
+<meta name="description" content="How many agents to put on the phones to hit your service target, for one hour or a whole day. Erlang C with an occupancy cap and shrinkage, and a simulation for callers who hang up.">
 <script src="kit-theme.js"></script>
 <link rel="stylesheet" href="kit.css">
+<link rel="stylesheet" href="tool.css">
 <style>
-  /* Tool-specific only (kit.css carries everything else): the live
-     queue dots and the staffing answer. Sizes use kit tokens. */
-  .queuedots { min-height: 30px; font-size: var(--fs-lede);
-               letter-spacing: 2px; word-break: break-all; }
-  .biganswer { font-size: var(--fs-lede); font-weight: 600; }
+  .floor { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+  .agent { width: 30px; height: 30px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); }
+  .agent.busy { background: var(--accent); border-color: var(--accent); }
+  .qbar { display: flex; flex-wrap: wrap; gap: 3px; min-height: 14px; margin: 6px 0 2px; }
+  .caller { width: 10px; height: 10px; border-radius: 50%; background: var(--series-2); }
+  .caller.more { width: auto; height: auto; background: none; color: var(--series-2); font-size: var(--fs-caption); font-weight: 700; }
+  .live-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+  .live-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--fs-small); color: var(--muted); }
+  .live-stats b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  .target-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--fs-small); }
+  .target-row input { width: 4.6em !important; }
+  textarea.paste { width: 100%; min-height: 70px; font: inherit; font-size: var(--fs-small); color: var(--fg); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 8px; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <main>
   <header class="kit-header">
     <div class="kit-header-top">
-      <p class="kit-kicker">Omid Golchin · learning tools</p>
-      <button class="kit-theme-toggle" type="button" data-kit-theme-toggle
-        aria-label="Toggle light/dark mode">◐ Theme</button>
+      <p class="kit-kicker">Omid Golchin · Decision tools</p>
+      <button type="button" class="kit-theme-toggle" aria-pressed="false">◐ Theme</button>
     </div>
-    <h1>Queue Simulator</h1>
-    <p class="kit-tagline">How many staff does a queue need? The queueing
-    formula (Erlang C) gives the staffing answer in one line,
-    <b>when its assumptions hold</b>. This page lets you staff a call
-    centre with the formula, then run the simulation and watch where the
-    two agree and where they part company.</p>
+    <h1>Call Center Staffing Planner</h1>
+    <p class="kit-tagline">How many agents you need, hour by hour, to hit your service target. Checked by simulation, not just the formula.</p>
   </header>
 
-  <div class="card">
-    <h3>Try it: the queue, live</h3>
-    <div class="ctl-grid">
-      <label>Arrival rate: <output id="o-lam">30</output> calls/hour
-        <input type="range" id="in-lam" min="5" max="150" step="1" value="30"></label>
-      <label>Average call length: <output id="o-svc">5</output> minutes
-        <input type="range" id="in-svc" min="1" max="12" step="0.5" value="5"></label>
-      <label>Agents: <output id="o-srv">4</output>
-        <input type="range" id="in-srv" min="1" max="15" step="1" value="4"></label>
-      <label>Caller patience: <output id="o-pat">never give up</output>
-        <input type="range" id="in-pat" min="1" max="31" step="1" value="31"></label>
-    </div>
-    <div class="presets">
-      <button data-preset="desk">Support desk</button>
-      <button data-preset="under">One agent short</button>
-      <button data-preset="impatient">Impatient callers</button>
-      <button data-preset="rush">Rush hour</button>
-      <button id="btn-reset">Start / restart the day</button>
-    </div>
-    <div class="tiles-label" id="agents-label">4 agents idle; press Start to begin the day</div>
-    <div class="tiles" id="servers"></div>
-    <div>Waiting: <span class="queuedots" id="queue"></span></div>
-    <div class="stats">
-      <div class="stat"><span class="value" id="st-wait">–</span><span class="label">simulated avg wait</span></div>
-      <div class="stat"><span class="value" id="st-over">–</span><span class="label">simulated % over 20 s</span></div>
-      <div class="stat"><span class="value" id="st-aband">–</span><span class="label">gave up</span></div>
-      <div class="stat"><span class="value" id="st-util">–</span><span class="label">agent utilisation</span></div>
-      <div class="stat"><span class="value" id="st-fw">–</span><span class="label">formula avg wait</span></div>
-    </div>
-    <p class="muted" id="sim-note">The simulation runs in your browser
-    (exponential calls, Poisson arrivals). The formula assumes callers
-    never hang up — set a patience below “never” and only the simulation
-    can follow.</p>
+  <div class="tool-modes" role="tablist" aria-label="Mode">
+    <button type="button" role="tab" id="tab-hour" class="active" aria-selected="true">Plan one hour</button>
+    <button type="button" role="tab" id="tab-day" aria-selected="false">Plan a whole day</button>
   </div>
 
-  <div class="card">
-    <h3>The staffing question</h3>
-    <p class="biganswer" id="staffing">–</p>
-    <p class="muted">The classic target: answer 80% of calls within
-    20 seconds. Answered with Erlang C, live, for the settings above —
-    and checked against 20 simulation replications per point in the
-    chart below for three preset centres.</p>
-    <label>Preset centre:
-      <select id="in-preset">
-        <option value="desk">Support desk — 30 calls/hour, 5-minute calls</option>
-        <option value="bank">Bank call centre — 60 calls/hour, 4-minute calls</option>
-        <option value="busy">Busy help line — 120 calls/hour, 3-minute calls</option>
-      </select>
-    </label>
-    <div class="chart"><canvas id="chart"></canvas></div>
-    <p class="chart-caption" id="chart-note"></p>
-  </div>
+  <!-- ================= ONE HOUR ================= -->
+  <section id="view-hour">
+    <div class="work">
+      <form class="panel" novalidate onsubmit="return false">
+        <div class="panel-head">
+          <h2>Your queue</h2>
+          <select class="example" id="example" aria-label="Load an example"><option value="">Load example…</option></select>
+        </div>
+        <div class="fields">
+          <div class="field"><label for="calls">Calls per hour</label><input id="calls" type="number" min="1" step="any" inputmode="decimal"></div>
+          <div class="field"><label for="aht">Average handle time</label><div class="input-wrap"><input id="aht" type="number" min="0.1" step="any"><span class="unit">min</span></div><div class="hint">Talk plus wrap-up.</div></div>
+          <div class="field full"><label>Service target</label>
+            <div class="target-row"><input id="tPct" type="number" min="1" max="99.9" step="any" aria-label="percent of calls"> % of calls answered within <input id="tSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div></div>
+          <div class="field"><label for="patience">Callers hang up after about</label><div class="input-wrap"><input id="patience" type="number" min="0" step="any" placeholder="never"><span class="unit">min</span></div><div class="hint">Leave empty if callers wait as long as it takes.</div></div>
+          <div class="field"><label for="shrink">Shrinkage</label><div class="input-wrap"><input id="shrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div><div class="hint">Paid time off the phones: breaks, training, meetings.</div></div>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button type="button" id="assistToggle">✦ Fill from my description</button>
+          <span class="footnote">Describe your center or paste a phone-system report; an AI model fills the form, the tool does the math.</span>
+        </div>
+        <div id="assistMount"></div>
+      </form>
 
-  <div class="card">
-    <h3>Can an LLM do this instead?</h3>
-    <p id="llm-intro">Fifteen queue scenarios were put to several
-    open-weight models three ways: estimate directly, write code and run
-    it, and simulate 20 customers by hand, event by event. Ground truth:
-    Erlang C, or 200 replications of the Python simulator.</p>
-    <div id="llm-table" class="table-scroll"></div>
-    <p class="muted" id="llm-verdict"></p>
-  </div>
+      <div>
+        <section class="panel verdict" id="verdict" aria-live="polite">
+          <p class="v-kicker">Recommendation</p>
+          <p class="v-title" id="vTitle">…</p>
+          <p class="v-body" id="vBody"></p>
+          <div class="kpis" id="kpis"></div>
+          <div class="checks" id="checks"></div>
+        </section>
+        <div class="actions">
+          <button type="button" id="copySummary">Copy summary</button>
+          <button type="button" id="copyLink">Copy link</button>
+          <span class="toast" id="toast"></span>
+        </div>
+      </div>
+    </div>
 
-  <div class="card">
-    <h3>Why one long run is not enough</h3>
-    <p>Every simulated number here comes from independent replications
-    with a warm-up period and a confidence interval — not from a single
-    long run. Queues are autocorrelated: one busy hour colours the next,
-    so a single run's average hides its own error. The Python simulator
-    was checked against Erlang C on 12 settings (inside the 95% CI in
-    every one) and against Little's law on every run.</p>
-    <details>
-      <summary>The 30-second version</summary>
-      <p>Callers arrive at random, calls take a random time, and a few
-      agents answer. Erlang C turns three numbers (arrival rate, call
-      length, agents) into the average wait and the share of callers
-      waiting over 20 seconds — exactly, if arrivals are Poisson, calls
-      are exponential, nobody hangs up, and the load is steady. Change
-      any of those and you need a simulation.</p>
+    <section class="panel" id="livePanel" style="margin-top:16px">
+      <div class="live-head">
+        <h2 style="margin:0">Watch the hour</h2>
+        <div class="btn-row" style="margin:0">
+          <button type="button" id="minus">− 1 agent</button>
+          <button type="button" id="plus">+ 1 agent</button>
+          <button type="button" id="restart">Restart</button>
+          <select id="speed" aria-label="Speed"><option value="1">1 min per second</option><option value="3" selected>3 min per second</option><option value="10">10 min per second</option></select>
+        </div>
+      </div>
+      <p class="small muted" id="liveLabel" style="margin:6px 0 0"></p>
+      <div class="floor" id="floor" aria-label="agents"></div>
+      <div class="small muted">Waiting: <b id="qn" class="num" style="color:var(--fg)">0</b></div>
+      <div class="qbar" id="qbar" aria-label="callers waiting"></div>
+      <div class="live-stats" id="liveStats"></div>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <h2>Service level by number of agents</h2>
+      <div class="svgchart" id="slChart"></div>
+      <p class="chart-caption" id="slCaption"></p>
+    </section>
+
+    <details class="more">
+      <summary>Settings <span class="sub">occupancy cap, agent cost</span></summary>
+      <div class="more-body">
+        <div class="fields" style="max-width:560px">
+          <div class="field"><label for="occCap">Keep agents busy no more than</label><div class="input-wrap"><input id="occCap" type="number" min="50" max="100" step="any"><span class="unit">%</span></div><div class="hint">Of their time on the phones. 85–90% is typical.</div></div>
+          <div class="field"><label for="cost">Cost of one agent-hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="cost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div></div>
+        </div>
+      </div>
     </details>
-    <details>
-      <summary>The intuition</summary>
-      <p>Waits explode as utilisation approaches 100%: going from 80%
-      to 95% busy multiplies the average wait several-fold, because
-      there is no slack left to absorb a burst. That is why the
-      staffing curve bends so steeply, and why averaging a day's
-      arrivals before applying the formula understates the rush-hour
-      waits: the bad hours dominate.</p>
+
+    <details class="more">
+      <summary>How the recommendation is made <span class="sub">formulas, simulation, sources</span></summary>
+      <div class="more-body small">
+        <p><b>Erlang C</b> gives the chance a caller waits and the wait distribution when calls arrive at random, handle times are exponential and nobody hangs up (Gans, Koole &amp; Mandelbaum, "Telephone call centers: tutorial, review, and research prospects", <i>Manufacturing &amp; Service Operations Management</i>, 2003). The recommendation is the fewest agents whose service level meets your target.</p>
+        <div class="formula">offered load a = calls per minute × handle time (minutes)
+P(wait) = Erlang C(c, a)
+service level = 1 − P(wait) · exp(−(c − a) · T / handle time)
+average wait (ASA) = P(wait) · handle time / (c − a)
+occupancy = a / c</div>
+        <p><b>Occupancy cap.</b> If the target is met with agents busier than the cap, agents are added until they are not. Sustained occupancy above about 90% raises handle times and turnover, so the formula's answer is not schedulable.</p>
+        <p><b>Callers who hang up.</b> Erlang C assumes infinite patience and overstates waits when callers abandon. With a patience set, the recommendation comes from a simulation of the queue with exponential patience (20 independent runs of 8 hours after a 1-hour warm-up, the same random numbers for every agent count), and the service level counts hung-up calls as missed. The simulation engine agrees with this repository's SimPy simulator within its confidence intervals (tested).</p>
+        <p><b>Shrinkage</b> converts agents on the phones into people to schedule: scheduled = agents ÷ (1 − shrinkage), rounded up.</p>
+        <p class="footnote">The experiments behind this tool (validation against Erlang C and Little's law, the rush-hour finding, whether language models can do queueing math) are in <a href="https://github.com/omidgolchin/queue-simulator#research-notes">Research notes</a>.</p>
+      </div>
     </details>
-    <details>
-      <summary>The maths</summary>
-      <p>With offered load a = λ/μ and c agents, Erlang C gives the
-      probability an arrival waits, C(c, a); the mean queue wait is
-      C(c, a) / (cμ − λ), and P(wait &gt; t) = C(c, a)·e<sup>−(cμ−λ)t</sup>.
-      Little's law ties the averages together for any queue:
-      L = λW. The simulator checks it from its own counters on every
-      replication.</p>
+  </section>
+
+  <!-- ================= DAY ================= -->
+  <section id="view-day" hidden>
+    <div class="work">
+      <form class="panel" novalidate onsubmit="return false">
+        <div class="panel-head"><h2>Your day</h2></div>
+        <div class="fields">
+          <div class="field"><label for="dCalls">Calls per day</label><input id="dCalls" type="number" min="1" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="dShape">Shape of the day</label>
+            <select id="dShape"><option value="nyc">Typical weekday</option><option value="flat">Flat</option><option value="custom">My hourly counts</option></select></div>
+          <div class="field"><label for="dOpen">Open from</label><select id="dOpen"></select></div>
+          <div class="field"><label for="dClose">Until</label><select id="dClose"></select></div>
+          <div class="field full" id="pasteWrap" hidden><label for="dPaste">Calls in each open hour, in order</label><textarea class="paste" id="dPaste" placeholder="e.g. 80, 140, 210, 230, 200, 160, 150, 170, 140, 110, 90, 60"></textarea><div class="hint" id="pasteHint"></div></div>
+          <div class="field"><label for="dAht">Average handle time</label><div class="input-wrap"><input id="dAht" type="number" min="0.1" step="any"><span class="unit">min</span></div></div>
+          <div class="field"><label for="dShrink">Shrinkage</label><div class="input-wrap"><input id="dShrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div></div>
+          <div class="field full"><label>Service target</label>
+            <div class="target-row"><input id="dPct" type="number" min="1" max="99.9" step="any" aria-label="percent"> % within <input id="dSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div></div>
+          <div class="field"><label for="dMin">Minimum agents on duty</label><input id="dMin" type="number" min="1" step="1"></div>
+          <div class="field"><label for="dCost">Cost of one paid hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="dCost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div></div>
+        </div>
+      </form>
+      <div>
+        <section class="panel verdict v-accent" id="dVerdict" aria-live="polite">
+          <p class="v-kicker">Day plan</p>
+          <p class="v-title" id="dTitle">…</p>
+          <p class="v-body" id="dBody"></p>
+          <div class="kpis" id="dKpis"></div>
+          <div class="checks" id="dChecks"></div>
+        </section>
+        <div class="actions">
+          <button type="button" id="dCopy">Copy plan</button>
+          <button type="button" id="dCsv">Download CSV</button>
+          <button type="button" id="dLink">Copy link</button>
+          <span class="toast" id="dToast"></span>
+        </div>
+      </div>
+    </div>
+    <section class="panel" style="margin-top:16px">
+      <h2>Agents on the phones, hour by hour</h2>
+      <div class="svgchart" id="dayChart"></div>
+      <details style="margin-top:8px"><summary class="small">The plan as a table</summary><div class="table-scroll"><table id="dTable"></table></div></details>
+    </section>
+    <details class="more">
+      <summary>How the day plan is made <span class="sub">interval staffing</span></summary>
+      <div class="more-body small">
+        <p>Each hour is staffed on its own with Erlang C, the standard practice in workforce management: a day staffed for its average hour leaves the rush badly understaffed (in this repository's test, 41% of callers waited over 20 seconds at the peak). The day's shape is either a typical weekday (the hourly pattern of NYC 311 calls, January 2024, scaled to your daily total), flat, or your own counts.</p>
+        <p>The day plan assumes callers do not hang up, which makes it slightly generous. Use <b>Plan one hour</b> with a patience set to check a busy hour by simulation.</p>
+      </div>
     </details>
-    <details>
-      <summary>Does the browser maths match the Python?</summary>
-      <p id="check-cases">Checking…</p>
-    </details>
-  </div>
+  </section>
 
   <footer class="kit-footer">
-    <nav class="kit-siblings" aria-label="More tools">
-      <span class="kit-siblings-label">More tools:</span>
-      <a href="https://omidgolchin.github.io/experiment-hazard-simulator/">Experiment Hazard Simulator</a> ·
-      <a href="https://omidgolchin.github.io/bayesian-ab-lab/">Bayesian A/B Lab</a> ·
-      <a href="https://omidgolchin.github.io/queue-simulator/" aria-current="page">Queue Simulator</a>
-    </nav>
-    <p>Built by Omid Golchin. Shared design:
-      <a href="https://github.com/omidgolchin/omid-tools-kit">omid-tools-kit</a>.</p>
+    <p class="kit-siblings"><span class="kit-siblings-label">More tools:</span>
+      <a href="https://omidgolchin.github.io/bayesian-ab-lab/">A/B Test Decision Tool</a> ·
+      <a href="https://omidgolchin.github.io/queue-simulator/" aria-current="page">Call Center Staffing Planner</a> ·
+      <a href="https://omidgolchin.github.io/experiment-hazard-simulator/">Agent Eval Planner</a></p>
+    <p>Built by Omid Golchin · <a href="https://github.com/omidgolchin/queue-simulator">Code, tests and design decisions</a> · Everything runs in your browser; nothing you type is sent anywhere unless you use the AI fill with your own key.</p>
   </footer>
-  <p class="muted small">
-    Built to learn queueing by building it. Code and full write-up:
-    <a href="https://github.com/omidgolchin/queue-simulator">github.com/omidgolchin/queue-simulator</a>. References: Law, <i>Simulation Modeling and
-    Analysis</i> (6th ed., 2024); Hillier &amp; Lieberman,
-    <i>Introduction to Operations Research</i> (12th ed., 2024), ch. 17;
-    Little (1961), “A Proof for the Queuing Formula: L = λW”,
-    <i>Operations Research</i> 9(3); SimPy documentation. Arrival-day
-    shape: NYC 311 open data (January 2024), used for hourly rates only.
-  </p>
 </main>
 <script src="qsim.js"></script>
-<script src="kit-chart.js"></script>
+<script src="staffing.js"></script>
+<script src="tool-common.js"></script>
+<script src="assist-config.js"></script>
+<script src="nyc-shape.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
