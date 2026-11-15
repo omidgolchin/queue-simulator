@@ -34,13 +34,21 @@
     <p class="kit-tagline">How many agents you need, hour by hour, to hit your service target. Checked by simulation, not just the formula.</p>
   </header>
 
-  <div class="tool-modes" role="tablist" aria-label="Mode">
+  <div class="tool-modes" role="tablist" aria-label="What do you want to plan?">
     <button type="button" role="tab" id="tab-hour" class="active" aria-selected="true">Plan one hour</button>
     <button type="button" role="tab" id="tab-day" aria-selected="false">Plan a whole day</button>
   </div>
 
   <!-- ================= ONE HOUR ================= -->
-  <section id="view-hour">
+  <section id="view-hour" role="tabpanel" aria-labelledby="tab-hour">
+    <div class="guide" aria-label="How to use this mode">
+      <ol class="steps">
+        <li><b>Describe one busy hour</b>: how many calls arrive and how long each takes, from your phone system's reports.</li>
+        <li><b>Set your service target</b>, for example 80% of calls answered within 20 seconds.</li>
+        <li><b>Get the head count</b>: agents on the phones and people to schedule. <i>Watch the hour</i> lets you see it play out, and the chart shows what one more or one fewer agent does.</li>
+      </ol>
+      <p class="also"><b>Also here:</b> <i>Plan a whole day</i> staffs every hour of a shift · <i>Fill from my description</i> reads a pasted report · <i>Settings</i> caps how busy agents get and adds cost.</p>
+    </div>
     <div class="work">
       <form class="panel" novalidate onsubmit="return false">
         <div class="panel-head">
@@ -48,12 +56,12 @@
           <select class="example" id="example" aria-label="Load an example"><option value="">Load example…</option></select>
         </div>
         <div class="fields">
-          <div class="field"><label for="calls">Calls per hour</label><input id="calls" type="number" min="1" step="any" inputmode="decimal"></div>
-          <div class="field"><label for="aht">Average handle time</label><div class="input-wrap"><input id="aht" type="number" min="0.1" step="any"><span class="unit">min</span></div><div class="hint">Talk plus wrap-up.</div></div>
-          <div class="field full"><label>Service target</label>
-            <div class="target-row"><input id="tPct" type="number" min="1" max="99.9" step="any" aria-label="percent of calls"> % of calls answered within <input id="tSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div></div>
-          <div class="field"><label for="patience">Callers hang up after about</label><div class="input-wrap"><input id="patience" type="number" min="0" step="any" placeholder="never"><span class="unit">min</span></div><div class="hint">Leave empty if callers wait as long as it takes.</div></div>
-          <div class="field"><label for="shrink">Shrinkage</label><div class="input-wrap"><input id="shrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div><div class="hint">Paid time off the phones: breaks, training, meetings.</div></div>
+          <div class="field"><label for="calls">Calls per hour</label><input id="calls" type="number" min="1" step="any" inputmode="decimal"><div class="hint">Calls arriving in your busiest hour. Your phone system's hourly report has it.</div></div>
+          <div class="field"><label for="aht">Average handle time</label><div class="input-wrap"><input id="aht" type="number" min="0.1" step="any"><span class="unit">min</span></div><div class="hint">Average minutes per call: talk time plus the wrap-up work after it.</div></div>
+          <div class="field full"><label>Service target <button type="button" data-tip="sl"></button></label>
+            <div class="target-row"><input id="tPct" type="number" min="1" max="99.9" step="any" aria-label="percent of calls"> % of calls answered within <input id="tSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div><div class="hint">The promise you make callers. 80% within 20 seconds is a common call-center standard.</div></div>
+          <div class="field"><label for="patience">Callers hang up after about <button type="button" data-tip="abandon"></button></label><div class="input-wrap"><input id="patience" type="number" min="0" step="any" placeholder="never"><span class="unit">min</span></div><div class="hint">How long a typical caller waits before giving up. Leave empty if callers wait as long as it takes.</div></div>
+          <div class="field"><label for="shrink">Shrinkage <button type="button" data-tip="shrink"></button></label><div class="input-wrap"><input id="shrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div><div class="hint">Share of paid time agents are not on the phones: breaks, training, meetings. 30% is typical.</div></div>
         </div>
         <div class="actions" style="margin-top:12px">
           <button type="button" id="assistToggle">✦ Fill from my description</button>
@@ -80,7 +88,7 @@
 
     <section class="panel" id="livePanel" style="margin-top:16px">
       <div class="live-head">
-        <h2 style="margin:0">Watch the hour</h2>
+        <h2 style="margin:0">Watch the hour <button type="button" data-tip="watch"></button></h2>
         <div class="btn-row" style="margin:0">
           <button type="button" id="minus">− 1 agent</button>
           <button type="button" id="plus">+ 1 agent</button>
@@ -96,7 +104,7 @@
     </section>
 
     <section class="panel" style="margin-top:16px">
-      <h2>Service level by number of agents</h2>
+      <h2>Service level by number of agents <button type="button" data-tip="erlang"></button></h2>
       <div class="svgchart" id="slChart"></div>
       <p class="chart-caption" id="slCaption"></p>
     </section>
@@ -105,8 +113,8 @@
       <summary>Settings <span class="sub">occupancy cap, agent cost</span></summary>
       <div class="more-body">
         <div class="fields" style="max-width:560px">
-          <div class="field"><label for="occCap">Keep agents busy no more than</label><div class="input-wrap"><input id="occCap" type="number" min="50" max="100" step="any"><span class="unit">%</span></div><div class="hint">Of their time on the phones. 85–90% is typical.</div></div>
-          <div class="field"><label for="cost">Cost of one agent-hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="cost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div></div>
+          <div class="field"><label for="occCap">Keep agents busy no more than <button type="button" data-tip="occ"></button></label><div class="input-wrap"><input id="occCap" type="number" min="50" max="100" step="any"><span class="unit">%</span></div><div class="hint">Of their time on the phones. Above about 90%, people burn out and quality drops.</div></div>
+          <div class="field"><label for="cost">Cost of one agent-hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="cost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div><div class="hint">What one agent costs per hour, to price the plan. Leave empty to skip.</div></div>
         </div>
       </div>
     </details>
@@ -129,23 +137,31 @@ occupancy = a / c</div>
   </section>
 
   <!-- ================= DAY ================= -->
-  <section id="view-day" hidden>
+  <section id="view-day" role="tabpanel" aria-labelledby="tab-day" hidden>
+    <div class="guide" aria-label="How to use this mode">
+      <ol class="steps">
+        <li><b>Enter the day's calls</b> and opening hours. Pick a typical shape, or paste your own counts for each hour.</li>
+        <li><b>Set the service target</b> and the share of paid time spent off the phones.</li>
+        <li><b>Get the plan</b>: agents for every hour, total paid hours, and the share of the day's calls answered on time.</li>
+      </ol>
+      <p class="also"><b>Also here:</b> <i>The plan as a table</i> (under the chart) is ready to copy into a roster.</p>
+    </div>
     <div class="work">
       <form class="panel" novalidate onsubmit="return false">
         <div class="panel-head"><h2>Your day</h2></div>
         <div class="fields">
-          <div class="field"><label for="dCalls">Calls per day</label><input id="dCalls" type="number" min="1" step="1" inputmode="numeric"></div>
+          <div class="field"><label for="dCalls">Calls per day</label><input id="dCalls" type="number" min="1" step="1" inputmode="numeric"><div class="hint">All calls expected in the day. Use a typical day of the week you are planning.</div></div>
           <div class="field"><label for="dShape">Shape of the day</label>
-            <select id="dShape"><option value="nyc">Typical weekday</option><option value="flat">Flat</option><option value="custom">My hourly counts</option></select></div>
-          <div class="field"><label for="dOpen">Open from</label><select id="dOpen"></select></div>
-          <div class="field"><label for="dClose">Until</label><select id="dClose"></select></div>
+            <select id="dShape"><option value="nyc">Typical weekday</option><option value="flat">Flat</option><option value="custom">My hourly counts</option></select><div class="hint">How calls spread over the day. "Typical weekday" peaks late morning; pick your own counts if you have them.</div></div>
+          <div class="field"><label for="dOpen">Open from</label><select id="dOpen"></select><div class="hint">The first hour you take calls.</div></div>
+          <div class="field"><label for="dClose">Until</label><select id="dClose"></select><div class="hint">The hour you stop taking calls.</div></div>
           <div class="field full" id="pasteWrap" hidden><label for="dPaste">Calls in each open hour, in order</label><textarea class="paste" id="dPaste" placeholder="e.g. 80, 140, 210, 230, 200, 160, 150, 170, 140, 110, 90, 60"></textarea><div class="hint" id="pasteHint"></div></div>
-          <div class="field"><label for="dAht">Average handle time</label><div class="input-wrap"><input id="dAht" type="number" min="0.1" step="any"><span class="unit">min</span></div></div>
-          <div class="field"><label for="dShrink">Shrinkage</label><div class="input-wrap"><input id="dShrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div></div>
-          <div class="field full"><label>Service target</label>
-            <div class="target-row"><input id="dPct" type="number" min="1" max="99.9" step="any" aria-label="percent"> % within <input id="dSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div></div>
-          <div class="field"><label for="dMin">Minimum agents on duty</label><input id="dMin" type="number" min="1" step="1"></div>
-          <div class="field"><label for="dCost">Cost of one paid hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="dCost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div></div>
+          <div class="field"><label for="dAht">Average handle time</label><div class="input-wrap"><input id="dAht" type="number" min="0.1" step="any"><span class="unit">min</span></div><div class="hint">Talk plus wrap-up, in minutes, averaged over the day.</div></div>
+          <div class="field"><label for="dShrink">Shrinkage <button type="button" data-tip="shrink"></button></label><div class="input-wrap"><input id="dShrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div><div class="hint">Paid time off the phones. The roster is grown so enough people are still on the phones.</div></div>
+          <div class="field full"><label>Service target <button type="button" data-tip="sl"></button></label>
+            <div class="target-row"><input id="dPct" type="number" min="1" max="99.9" step="any" aria-label="percent"> % within <input id="dSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div><div class="hint">Applied to every hour. Quiet hours need relatively more agents to keep the same promise.</div></div>
+          <div class="field"><label for="dMin">Minimum agents on duty</label><input id="dMin" type="number" min="1" step="1"><div class="hint">A floor for quiet hours, so someone always covers the phones.</div></div>
+          <div class="field"><label for="dCost">Cost of one paid hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="dCost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div><div class="hint">What one paid hour costs, to price the whole day. Leave empty to skip.</div></div>
         </div>
       </form>
       <div>
@@ -179,10 +195,7 @@ occupancy = a / c</div>
   </section>
 
   <footer class="kit-footer">
-    <p class="kit-siblings"><span class="kit-siblings-label">More tools:</span>
-      <a href="https://omidgolchin.github.io/bayesian-ab-lab/">A/B Test Decision Tool</a> ·
-      <a href="https://omidgolchin.github.io/queue-simulator/" aria-current="page">Call Center Staffing Planner</a> ·
-      <a href="https://omidgolchin.github.io/experiment-hazard-simulator/">Agent Eval Planner</a></p>
+    <p class="kit-siblings"></p>
     <p>Built by Omid Golchin · <a href="https://github.com/omidgolchin/queue-simulator">Code, tests and design decisions</a> · Everything runs in your browser; nothing you type is sent anywhere unless you use the AI fill with your own key.</p>
   </footer>
 </main>

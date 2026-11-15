@@ -1,5 +1,5 @@
 [hidden] { display: none !important; }
-/* omid-tools-kit / tool.css: the layout shared by every tool (v2).
+/* omid-tools-kit / tool.css: the layout shared by every tool (v3).
  *
  * Loads after kit.css. Adds the tool page pattern:
  *   header, mode switch, [inputs | verdict] two-column work area,
@@ -103,3 +103,38 @@ select.example { font-size: var(--fs-small); }
 
 .footnote { font-size: var(--fs-caption); color: var(--muted); }
 .page-sub { color: var(--muted); font-size: var(--fs-lede); max-width: 70ch; margin: var(--sp-2) 0 0; }
+
+/* ---- v3: how-to guide, explanations, phone fixes ---- */
+.guide { margin: var(--sp-3) 0 0; }
+.guide .steps { list-style: none; counter-reset: step; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); margin: 0; padding: 0; }
+.guide .steps li { counter-increment: step; position: relative; padding-left: 30px; font-size: var(--fs-small); color: var(--muted); line-height: 1.45; }
+.guide .steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 21px; height: 21px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: var(--fs-caption); display: flex; align-items: center; justify-content: center; }
+.guide .steps b { color: var(--fg); font-weight: 600; }
+.guide .also { font-size: var(--fs-small); color: var(--muted); margin: var(--sp-2) 0 0; }
+.guide .also b { color: var(--fg); font-weight: 600; }
+@media (max-width: 720px) { .guide .steps { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); } }
+
+.tip { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; min-width: 18px; padding: 0; margin-left: 4px; border-radius: 50%; font-size: 11px; font-weight: 700; line-height: 1; color: var(--accent); background: var(--accent-soft); border: 1px solid transparent; vertical-align: 1px; position: relative; }
+.tip::after { content: ""; position: absolute; inset: -8px; }  /* bigger touch target, same look */
+.tip:hover, .tip[aria-expanded="true"] { border-color: var(--accent); }
+.tip-card { position: absolute; z-index: 50; background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 6px 24px rgba(0,0,0,.14); padding: var(--sp-3); }
+.tip-card .tip-t { font-weight: 600; margin: 0 0 4px; font-size: var(--fs-small); }
+.tip-card .tip-d { margin: 0; font-size: var(--fs-small); line-height: 1.5; color: var(--muted); }
+.field label .tip, .kpi .tip, h2 .tip, h3 .tip, legend .tip, th .tip { vertical-align: 0; }
+
+.field .hint { line-height: 1.4; }
+[role=tabpanel]:focus { outline: none; }
+@media (max-width: 600px) {
+  .formula { white-space: pre-wrap; word-break: break-word; }
+  .tool-modes { display: flex; width: 100%; }
+  .tool-modes button { flex: 1 1 0; padding: 9px 8px; }
+  .actions button { min-height: 36px; }
+}
+.nowrap { white-space: nowrap; }
+.fields.sg-on { row-gap: 0; }
+.fields.sg-on > .field.sg { display: grid; grid-row: span 4; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); row-gap: 0; min-width: 0; }
+.fields.sg-on > .field.sg > label { align-self: end; }
+.fields.sg-on > .field.sg::after { content: ""; height: var(--sp-3); }
+.fields.sg-on > :not(.sg) { margin-bottom: var(--sp-3); }
+.fields.sg-on > .group-label { margin: var(--sp-2) 0 6px; }
+.field-after:empty { display: none; }

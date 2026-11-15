@@ -1,4 +1,4 @@
-/* omid-tools-kit / tool-common.js: helpers shared by every tool (v2).
+/* omid-tools-kit / tool-common.js: helpers shared by every tool (v3).
  *
  *   Tool.readParams(defaults)      inputs from the URL query, typed like defaults
  *   Tool.writeParams(obj)          inputs into the URL (replaceState, no reload)
@@ -6,6 +6,9 @@
  *   Tool.fmt.*                     number formatting
  *   Tool.lineChart(el, spec)       a small, dependency-free SVG line chart
  *   Tool.assist(config)            the "Fill from description" AI assist
+ *   Tool.explain(glossary)         "?" buttons that open a plain-language explanation
+ *   Tool.siblings(currentRepo)     the "More tools" footer line, from one shared list
+ *   Tool.tabs(tablist)             arrow-key support for a mode switch
  *
  * No dependencies. Works from file:// and on GitHub Pages.
  */
@@ -132,6 +135,14 @@
     var yMax = spec.yMax != null ? spec.yMax : Math.max.apply(null, ys);
     if (yMax === yMin) { yMax += 1; yMin -= 1; }
     if (spec.yMax == null) yMax += (yMax - yMin) * 0.06;
+    // category labels that do not fit side by side are slanted, with room made below
+    var slant = false;
+    if (spec.xTicks && spec.xFormat && spec.xTicks.length > 1) {
+      var maxLen = 0;
+      spec.xTicks.forEach(function (v) { maxLen = Math.max(maxLen, String(spec.xFormat(v)).length); });
+      var room = (W - m.l - m.r) / spec.xTicks.length;
+      if (maxLen * 6.3 > room - 6) { slant = true; m.b += Math.min(78, maxLen * 4.4); }
+    }
     var X = function (v) { return m.l + (v - xMin) / (xMax - xMin || 1) * (W - m.l - m.r); };
     var Y = function (v) { return H - m.b - (v - yMin) / (yMax - yMin) * (H - m.t - m.b); };
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": spec.aria || spec.yTitle || "chart" }, host);
@@ -148,7 +159,9 @@
     xt.forEach(function (v) {
       if (v < xMin - 1e-12 || v > xMax + 1e-12) return;
       el("line", { x1: X(v), x2: X(v), y1: H - m.b, y2: H - m.b + 4, stroke: muted }, svg);
-      var t = el("text", { x: X(v), y: H - m.b + 17, "text-anchor": "middle" }, svg); t.textContent = xFmt(v);
+      var t = slant ? el("text", { x: X(v) + 4, y: H - m.b + 13, "text-anchor": "end", transform: "rotate(-38 " + (X(v) + 4) + " " + (H - m.b + 13) + ")" }, svg)
+        : el("text", { x: X(v), y: H - m.b + 17, "text-anchor": "middle" }, svg);
+      t.textContent = xFmt(v);
     });
     el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: muted }, svg);
     if (spec.xTitle) { var xtT = el("text", { x: (m.l + W - m.r) / 2, y: H - 6, "text-anchor": "middle", class: "title" }, svg); xtT.textContent = spec.xTitle; }
@@ -390,7 +403,144 @@
     return { buildPrompt: function (t) { return buildPrompt(cfg, t); }, parseReply: parseReply };
   }
 
-  var api = { readParams: readParams, writeParams: writeParams, copy: copy, fmt: fmt, lineChart: lineChart, niceTicks: niceTicks, assist: assist, _buildPrompt: buildPrompt, _parseReply: parseReply, _quoteFound: quoteFound, _coerce: coerce };
+
+  /* ---------------- explanations ("?" buttons) ----------------
+   * Markup: <button type="button" class="tip" data-tip="key">?</button>
+   * placed next to a label or result. glossary[key] = { t: "Term", d: "Plain explanation" }.
+   * The explanation opens as a small card under the button; Esc, a click
+   * elsewhere, or switching modes closes it. No layout shift: the card floats.
+   */
+  var tipCard = null, tipOwner = null;
+  function closeTip() {
+    if (tipCard) { tipCard.remove(); tipCard = null; }
+    if (tipOwner) { tipOwner.setAttribute("aria-expanded", "false"); tipOwner = null; }
+  }
+  function placeTip(btn) {
+    if (!tipCard) return;
+    var r = btn.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    var w = Math.min(340, vw - 24);
+    tipCard.style.width = w + "px";
+    var left = Math.max(12, Math.min(r.left + r.width / 2 - w / 2, vw - w - 12));
+    tipCard.style.left = (left + window.scrollX) + "px";
+    tipCard.style.top = (r.bottom + window.scrollY + 6) + "px";
+  }
+  var GLOSS = {};
+  function decorate(root) {
+    (root.querySelectorAll ? root : document).querySelectorAll("[data-tip]:not(.tip)").forEach(function (btn) {
+      var g = GLOSS[btn.getAttribute("data-tip")];
+      if (!g) return;
+      btn.classList.add("tip");
+      if (btn.tagName === "BUTTON") btn.type = "button";
+      if (!btn.textContent.trim()) btn.textContent = "?";
+      btn.setAttribute("aria-label", "What is " + g.t.replace(/[.?:]$/, "") + "?");
+      btn.setAttribute("aria-expanded", "false");
+      // keep the "?" on the same line as the last word before it
+      var prev = btn.previousSibling;
+      if (prev && prev.nodeType === 3 && /\S/.test(prev.nodeValue) && !(btn.parentNode.classList && btn.parentNode.classList.contains("nowrap"))) {
+        var m = prev.nodeValue.match(/^([\s\S]*?)(\S+)(\s*)$/);
+        if (m) {
+          prev.nodeValue = m[1];
+          var span = document.createElement("span"); span.className = "nowrap";
+          span.appendChild(document.createTextNode(m[2] + (m[3] ? "\u00a0" : "")));
+          btn.parentNode.insertBefore(span, btn); span.appendChild(btn);
+        }
+      }
+    });
+  }
+  /* Align labels, inputs and hints across the two input columns (CSS subgrid). */
+  function alignFields(root) {
+    if (typeof CSS === "undefined" || !CSS.supports || !CSS.supports("grid-template-rows", "subgrid")) return;
+    (root || document).querySelectorAll(".fields").forEach(function (grid) {
+      grid.classList.add("sg-on");
+      Array.prototype.forEach.call(grid.children, function (f) {
+        if (!f.classList.contains("field") || f.classList.contains("full") || f.classList.contains("sg")) return;
+        var kids = Array.prototype.slice.call(f.children);
+        if (!kids.length || kids[0].tagName !== "LABEL" || kids.length < 2) return;
+        var after = document.createElement("div"); after.className = "field-after";
+        kids.slice(2).forEach(function (k) { after.appendChild(k); });
+        f.appendChild(after); f.classList.add("sg");
+      });
+    });
+  }
+  function explain(glossary) {
+    Object.keys(glossary || {}).forEach(function (k) { GLOSS[k] = glossary[k]; });
+    decorate(document);
+    if (explain._wired) return;
+    explain._wired = true;
+    new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) { if (n.hasAttribute("data-tip")) decorate(n.parentNode || document); else decorate(n); } }); }); })
+      .observe(document.body, { childList: true, subtree: true });
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest("[data-tip]") : null;
+      if (btn && GLOSS[btn.getAttribute("data-tip")]) {
+        e.preventDefault();
+        var same = tipOwner === btn; closeTip(); if (same) return;
+        var g = GLOSS[btn.getAttribute("data-tip")];
+        tipCard = document.createElement("div");
+        tipCard.className = "tip-card"; tipCard.setAttribute("role", "note");
+        tipCard.id = "tipc-" + Math.random().toString(36).slice(2, 8);
+        btn.setAttribute("aria-describedby", tipCard.id);
+        tipCard.innerHTML = '<p class="tip-t">' + esc(g.t) + '</p><p class="tip-d">' + g.d + "</p>";
+        document.body.appendChild(tipCard);
+        tipOwner = btn; btn.setAttribute("aria-expanded", "true"); placeTip(btn);
+        return;
+      }
+      if (tipCard && !tipCard.contains(e.target)) closeTip();
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && tipCard) { var o = tipOwner; closeTip(); if (o) o.focus(); } });
+    window.addEventListener("resize", function () { if (tipOwner) placeTip(tipOwner); });
+  }
+
+  /* ---------------- the shared tool list ---------------- */
+  var TOOLS = [
+    ["bayesian-ab-lab", "A/B Test Decision Tool"],
+    ["queue-simulator", "Call Center Staffing Planner"],
+    ["experiment-hazard-simulator", "Agent Eval Planner"],
+    ["llm-eval-error-bar", "Error Bars for LLM Evals"],
+    ["ordering-policy-tester", "Ordering Policy Tester"],
+    ["order-quantity-planner", "Order Quantity Planner"],
+    ["production-line-simulator", "Production Line Bottleneck Finder"],
+    ["persuasion-checker", "Which Draft Persuades?"],
+    ["gpu-budget-planner", "GPU Budget Planner"]
+  ];
+  function siblings(current) {
+    var host = document.querySelector(".kit-siblings");
+    if (!host) return;
+    host.innerHTML = '<span class="kit-siblings-label">More tools:</span> ' + TOOLS.map(function (t) {
+      return t[0] === current ? '<a href="https://omidgolchin.github.io/' + t[0] + '/" aria-current="page">' + t[1] + "</a>"
+        : '<a href="https://omidgolchin.github.io/' + t[0] + '/">' + t[1] + "</a>";
+    }).join(" · ");
+  }
+
+  /* ---------------- tabs: arrow keys, panels ---------------- */
+  function tabs(list) {
+    list = list || document.querySelector("[role=tablist]");
+    if (!list) return;
+    var items = Array.prototype.slice.call(list.querySelectorAll("[role=tab]"));
+    items.forEach(function (t) {
+      t.addEventListener("click", function () { closeTip(); });
+      t.addEventListener("keydown", function (e) {
+        var i = items.indexOf(t), j = -1;
+        if (e.key === "ArrowRight") j = (i + 1) % items.length;
+        else if (e.key === "ArrowLeft") j = (i - 1 + items.length) % items.length;
+        else if (e.key === "Home") j = 0; else if (e.key === "End") j = items.length - 1;
+        if (j < 0) return;
+        e.preventDefault(); items[j].focus(); items[j].click();
+      });
+    });
+    var sync = function () { items.forEach(function (t) { t.tabIndex = t.getAttribute("aria-selected") === "true" ? 0 : -1; }); };
+    sync(); new MutationObserver(sync).observe(list, { subtree: true, attributes: true, attributeFilter: ["aria-selected"] });
+  }
+
+  if (typeof document !== "undefined") {
+    document.addEventListener("DOMContentLoaded", function () {
+      var m = location.pathname.match(/\/([^\/]+)\/(?:docs\/)?(?:index\.html)?$/);
+      siblings(m ? m[1] : "");
+      tabs();
+      alignFields();
+    });
+  }
+
+  var api = { explain: explain, alignFields: alignFields, closeTip: closeTip, siblings: siblings, tabs: tabs, TOOLS: TOOLS, readParams: readParams, writeParams: writeParams, copy: copy, fmt: fmt, lineChart: lineChart, niceTicks: niceTicks, assist: assist, _buildPrompt: buildPrompt, _parseReply: parseReply, _quoteFound: quoteFound, _coerce: coerce };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") window.Tool = api;
 })();

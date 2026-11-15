@@ -123,9 +123,9 @@
     if (v.cost) body += " Cost: " + F.money(r.sched * v.cost) + " for the hour.";
     $("vTitle").textContent = title; $("vBody").textContent = body; $("verdict").className = "panel verdict v-good";
     r.title = title; r.body = body;
-    var k = [[F.pct(r.sl, 0), "answered within " + v.tSec + " s"], [secs(r.asa), "average wait"], [F.pct(r.occ, 0), "agents busy"]];
-    k.push(r.sim ? [F.pct(r.abandon, 1), "callers who hang up"] : [F.pct(r.pWait, 0), "callers who wait at all"]);
-    $("kpis").innerHTML = k.map(function (x) { return '<div class="kpi"><span class="k-val">' + x[0] + '</span><span class="k-lbl">' + x[1] + "</span></div>"; }).join("");
+    var k = [[F.pct(r.sl, 0), "answered within " + v.tSec + " s", "sl"], [secs(r.asa), "average wait"], [F.pct(r.occ, 0), "agents busy", "occ"]];
+    k.push(r.sim ? [F.pct(r.abandon, 1), "callers who hang up", "abandon"] : [F.pct(r.pWait, 0), "callers who wait at all", "pwait"]);
+    $("kpis").innerHTML = k.map(function (x) { return '<div class="kpi"><span class="k-val">' + x[0] + '</span><span class="k-lbl">' + x[1] + (x[2] ? ' <button type="button" data-tip="' + x[2] + '"></button>' : "") + "</span></div>"; }).join("");
     var c = [];
     c.push(r.binding === "occupancy" ? ["warn", "RAISED", "Occupancy", "Meeting the target alone would keep agents over " + v.occCap + "% busy, which burns people out and slows calls. Staffed up to stay under the cap."] : ["ok", "OK", "Occupancy", F.pct(r.occ, 0) + " busy, under your " + v.occCap + "% cap."]);
     c.push(r.sim ? ["ok", "SIMULATED", "Hang-ups", "20 simulated 8-hour runs: service level " + F.pct(r.sl, 0) + " ± " + (100 * r.slHalf).toFixed(1) + " points. Erlang C ignores hang-ups and would say " + r.erlang.c + "."] : ["info", "NOTE", "Hang-ups", "Assuming nobody hangs up. If callers do, add their patience: the formula then overstaffs and the simulation takes over."]);
@@ -232,7 +232,7 @@
     $("dBody").textContent = "Across the day: " + Math.round(plan.agentHours) + " agent-hours on the phones and " + Math.round(plan.paidHours) + " paid hours after " + num("dShrink") + "% shrinkage" + (cost ? " (" + F.money(plan.paidHours * cost) + " at " + F.money(cost) + " an hour)" : "") + ". Expected: " + F.pct(plan.daySL, 0) + " of the day's " + F.int(plan.totalCalls) + " calls answered within " + num("dSec") + " seconds.";
     var flat = Staffing.staffErlang(plan.totalCalls / dc.hours.length / 60, aht, T, level, cap).c;
     var peakLam = Math.max.apply(null, dc.calls) / 60, slFlat = Staffing.erlangMetrics(peakLam, aht, flat, T).sl;
-    $("dKpis").innerHTML = [[peakC, "agents at the peak"], [Math.round(plan.agentHours), "agent-hours"], [Math.round(plan.paidHours), "paid hours"], [F.pct(plan.daySL, 0), "of calls within target"]].map(function (x) { return '<div class="kpi"><span class="k-val">' + x[0] + '</span><span class="k-lbl">' + x[1] + "</span></div>"; }).join("");
+    $("dKpis").innerHTML = [[peakC, "agents at the peak"], [Math.round(plan.agentHours), "agent-hours"], [Math.round(plan.paidHours), "paid hours", "shrink"], [F.pct(plan.daySL, 0), "of calls within target"]].map(function (x) { return '<div class="kpi"><span class="k-val">' + x[0] + '</span><span class="k-lbl">' + x[1] + (x[2] ? ' <button type="button" data-tip="' + x[2] + '"></button>' : "") + "</span></div>"; }).join("");
     var cks = [["info", "WHY", "Hour by hour", "Staffing the whole day for the average hour (" + flat + " agents) would leave the peak at " + F.pct(Math.max(0, slFlat), 0) + " within target."]];
     var capped = plan.rows.filter(function (r) { return r.binding === "occupancy"; }).length;
     cks.push(capped ? ["warn", "RAISED", "Occupancy", capped + " hour" + (capped === 1 ? "" : "s") + " staffed up to keep agents under " + Math.round(cap * 100) + "% busy."] : ["ok", "OK", "Occupancy", "Every hour under " + Math.round(cap * 100) + "% busy."]);
@@ -260,6 +260,16 @@
     var blob = new Blob([rows.map(function (r) { return r.join(","); }).join("\n")], { type: "text/csv" });
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "staffing-plan.csv"; document.body.appendChild(a); a.click(); a.remove();
     $("dToast").textContent = "CSV downloaded.";
+  });
+
+  Tool.explain({
+    sl: { t: "Service level", d: "The share of calls answered within a time limit, for example 80% within 20 seconds. It is the standard promise a call center makes; the tool finds the fewest agents that keep it." },
+    abandon: { t: "Callers hanging up", d: "Real callers give up when the wait is long. That takes load off the queue, so a formula that assumes infinite patience (Erlang C) overstaffs. With a patience time the tool switches to simulation, which models each caller giving up (an Erlang A queue)." },
+    shrink: { t: "Shrinkage", d: "Paid time people are not available for calls: breaks, training, meetings, absence. With 30% shrinkage, 16 agents on the phones means scheduling 16 ÷ 0.7 ≈ 23 people." },
+    occ: { t: "Occupancy", d: "How much of their time on the phones agents spend on calls. High occupancy looks efficient but leaves no recovery between calls; most centers cap it near 85–90%." },
+    pwait: { t: "Callers who wait at all", d: "The chance an arriving caller finds every agent busy and has to queue. Erlang C computes it from the call volume and the number of agents." },
+    erlang: { t: "Formula vs simulation", d: "The line is Erlang C, the classic queueing formula (random arrivals, one queue, many agents). The dots are a minute-by-minute simulation of the same hour, run 12 times, with a 95% interval. When they agree, the formula can be trusted for your numbers; when callers hang up, the simulation is the one to use." },
+    watch: { t: "Watch the hour", d: "A live replay of one simulated hour. Each square is an agent (filled = on a call); dots are callers waiting. Use − 1 agent and + 1 agent to see how fast the queue builds when you are one person short." }
   });
 
   setMode(state.mode === "day" ? "day" : "hour");
