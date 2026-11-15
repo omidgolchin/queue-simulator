@@ -76,13 +76,13 @@
     var v = { calls: num("calls"), aht: num("aht"), tPct: num("tPct"), tSec: num("tSec"), patience: num("patience"), shrink: num("shrink"), occCap: num("occCap"), cost: num("cost") };
     var ok = true;
     function need(id, cond, msg) { fieldError(id, cond ? "" : msg); if (!cond) ok = false; }
-    need("calls", v.calls > 0 && v.calls <= 20000, "Between 1 and 20,000.");
-    need("aht", v.aht > 0 && v.aht <= 240, "Minutes, above 0.");
-    need("tPct", v.tPct > 0 && v.tPct < 100, "1 to 99.9.");
-    need("tSec", v.tSec > 0 && v.tSec <= 3600, "Seconds, above 0.");
+    need("calls", v.calls > 0 && v.calls <= 20000, "Enter the calls in one hour, from 1 to 20,000.");
+    need("aht", v.aht > 0 && v.aht <= 240, "Enter the average minutes per call, above 0 (up to 240).");
+    need("tPct", v.tPct > 0 && v.tPct < 100, "Enter a percentage above 0 and below 100, such as 80.");
+    need("tSec", v.tSec > 0 && v.tSec <= 3600, "Enter the answer-time limit in seconds, above 0.");
     need("patience", v.patience === null || v.patience > 0, "Minutes above 0, or empty for never.");
-    need("shrink", v.shrink !== null && v.shrink >= 0 && v.shrink < 80, "0 to 79.");
-    need("occCap", v.occCap >= 50 && v.occCap <= 100, "50 to 100.");
+    need("shrink", v.shrink !== null && v.shrink >= 0 && v.shrink < 80, "Enter a share from 0 up to (not including) 80%.");
+    need("occCap", v.occCap >= 50 && v.occCap <= 100, "Enter a percentage from 50 to 100; 85 to 90 is typical.");
     if (ok && v.patience === null && v.calls / 60 * v.aht > 3000) { need("calls", false, "Too large to plan here."); }
     return ok ? v : null;
   }
@@ -91,6 +91,7 @@
     var urlState = { mode: "hour" }; IDS_H.forEach(function (k) { urlState[k] = $(k).value; }); Tool.writeParams(urlState);
     if (!v) { $("vTitle").textContent = "Check the highlighted inputs"; $("vBody").textContent = ""; $("kpis").innerHTML = ""; $("checks").innerHTML = ""; $("verdict").className = "panel verdict v-neutral"; return; }
     var lam = v.calls / 60, T = v.tSec / 60, level = v.tPct / 100, cap = v.occCap / 100, sh = v.shrink / 100;
+    $("capNote").textContent = "Agents are also kept under " + v.occCap + "% busy (change it under Settings). If that cap needs more agents than the target does, the verdict says so.";
     var e = Staffing.staffErlang(lam, v.aht, T, level, cap);
     var res = { v: v, lam: lam, T: T, level: level, cap: cap, sh: sh, erlang: e };
     if (v.patience) {
@@ -215,8 +216,8 @@
     function need(id, cond, msg) { fieldError(id, cond ? "" : msg); if (!cond) ok = false; }
     need("dCalls", $("dShape").value === "custom" || num("dCalls") > 0, "Above 0.");
     need("dAht", num("dAht") > 0, "Minutes, above 0.");
-    need("dShrink", num("dShrink") >= 0 && num("dShrink") < 80, "0 to 79.");
-    need("dPct", num("dPct") > 0 && num("dPct") < 100, "1 to 99.9.");
+    need("dShrink", num("dShrink") >= 0 && num("dShrink") < 80, "Enter a share from 0 up to (not including) 80%.");
+    need("dPct", num("dPct") > 0 && num("dPct") < 100, "Enter a percentage above 0 and below 100, such as 80.");
     need("dMin", num("dMin") >= 1, "1 or more.");
     need("dClose", Number($("dClose").value) > Number($("dOpen").value), "After the opening hour.");
     var dc = ok ? dayCalls() : null;
@@ -229,13 +230,13 @@
     var span = peakHours.length ? fmtH(peakHours[0]) + "–" + fmtH(peakHours[peakHours.length - 1] + 1) : "";
     var cost = num("dCost");
     $("dTitle").textContent = "Peak: " + peakC + " agents, " + span;
-    $("dBody").textContent = "Across the day: " + Math.round(plan.agentHours) + " agent-hours on the phones and " + Math.round(plan.paidHours) + " paid hours after " + num("dShrink") + "% shrinkage" + (cost ? " (" + F.money(plan.paidHours * cost) + " at " + F.money(cost) + " an hour)" : "") + ". Expected: " + F.pct(plan.daySL, 0) + " of the day's " + F.int(plan.totalCalls) + " calls answered within " + num("dSec") + " seconds.";
+    $("dBody").textContent = "Across the day: " + Math.round(plan.agentHours) + " agent-hours on the phones and " + Math.round(plan.paidHours) + " paid hours after " + num("dShrink") + "% shrinkage" + (cost ? " (" + F.money(plan.paidHours * cost) + " at " + F.money(cost) + " an hour)" : "") + ". Expected: " + F.pct(plan.daySL, 0) + " of the day's " + F.int(plan.totalCalls) + " calls answered within " + num("dSec") + " seconds. Agents are kept under " + Math.round(cap * 100) + "% busy (the cap set under Settings in Plan one hour). The day plan assumes callers do not hang up, which is slightly generous; if yours do, check the busiest hour in Plan one hour with a patience time.";
     var flat = Staffing.staffErlang(plan.totalCalls / dc.hours.length / 60, aht, T, level, cap).c;
     var peakLam = Math.max.apply(null, dc.calls) / 60, slFlat = Staffing.erlangMetrics(peakLam, aht, flat, T).sl;
     $("dKpis").innerHTML = [[peakC, "agents at the peak"], [Math.round(plan.agentHours), "agent-hours"], [Math.round(plan.paidHours), "paid hours", "shrink"], [F.pct(plan.daySL, 0), "of calls within target"]].map(function (x) { return '<div class="kpi"><span class="k-val">' + x[0] + '</span><span class="k-lbl">' + x[1] + (x[2] ? ' <button type="button" data-tip="' + x[2] + '"></button>' : "") + "</span></div>"; }).join("");
     var cks = [["info", "WHY", "Hour by hour", "Staffing the whole day for the average hour (" + flat + " agents) would leave the peak at " + F.pct(Math.max(0, slFlat), 0) + " within target."]];
     var capped = plan.rows.filter(function (r) { return r.binding === "occupancy"; }).length;
-    cks.push(capped ? ["warn", "RAISED", "Occupancy", capped + " hour" + (capped === 1 ? "" : "s") + " staffed up to keep agents under " + Math.round(cap * 100) + "% busy."] : ["ok", "OK", "Occupancy", "Every hour under " + Math.round(cap * 100) + "% busy."]);
+    cks.push(capped ? ["warn", "RAISED", "Occupancy", capped + " hour" + (capped === 1 ? "" : "s") + " staffed up to keep agents under " + Math.round(cap * 100) + "% busy."] : ["ok", "OK", "Occupancy", "Every hour under " + Math.round(cap * 100) + "% busy (the cap from Settings in Plan one hour)."]);
     var minned = plan.rows.filter(function (r) { return r.binding === "minimum"; }).length;
     if (minned) cks.push(["info", "FLOOR", "Quiet hours", minned + " hour" + (minned === 1 ? "" : "s") + " held at your minimum of " + num("dMin") + " agents."]);
     $("dChecks").innerHTML = cks.map(function (x) { return '<div class="check is-' + x[0] + '"><span class="badge">' + x[1] + '</span><div><span class="c-name">' + x[2] + '.</span> <span class="c-text">' + x[3] + "</span></div></div>"; }).join("");

@@ -9,6 +9,7 @@
  *   Tool.explain(glossary)         "?" buttons that open a plain-language explanation
  *   Tool.siblings(currentRepo)     the "More tools" footer line, from one shared list
  *   Tool.tabs(tablist)             arrow-key support for a mode switch
+ *   Tool.exampleBanner(form, text) marks prefilled example content where it sits
  *
  * No dependencies. Works from file:// and on GitHub Pages.
  */
@@ -433,6 +434,7 @@
       if (btn.tagName === "BUTTON") btn.type = "button";
       if (!btn.textContent.trim()) btn.textContent = "?";
       btn.setAttribute("aria-label", "What is " + g.t.replace(/[.?:]$/, "") + "?");
+      btn.title = "Explain: " + g.t.replace(/[.?:]$/, "");
       btn.setAttribute("aria-expanded", "false");
       // keep the "?" on the same line as the last word before it
       var prev = btn.previousSibling;
@@ -531,16 +533,45 @@
     sync(); new MutationObserver(sync).observe(list, { subtree: true, attributes: true, attributeFilter: ["aria-selected"] });
   }
 
+
+  /* ---------------- example banner, jump to result ---------------- */
+  // Marks prefilled example content where it sits, so a first-time visitor
+  // does not read the demo verdict as their own. text = null hides it.
+  function exampleBanner(form, text) {
+    if (!form) return;
+    var b = form.querySelector(":scope > .ex-banner");
+    if (!text) { if (b) b.hidden = true; return; }
+    if (!b) {
+      b = document.createElement("p"); b.className = "ex-banner"; b.setAttribute("role", "status");
+      var head = form.querySelector(":scope > .panel-head");
+      if (head && head.nextSibling) form.insertBefore(b, head.nextSibling); else form.insertBefore(b, form.firstChild);
+    }
+    b.hidden = false;
+    b.innerHTML = '<span class="ex-tag">Example</span> ' + text;
+  }
+  // On narrow screens the inputs come first; give a way straight to the result.
+  function jumpLinks() {
+    document.querySelectorAll(".work").forEach(function (w, i) {
+      var form = w.querySelector("form.panel"), v = w.querySelector(".verdict");
+      if (!form || !v || form.querySelector(".jump")) return;
+      if (!v.id) v.id = "result-" + i;
+      var a = document.createElement("a"); a.className = "jump"; a.href = "#" + v.id; a.textContent = "Skip to the result ↓";
+      var head = form.querySelector(":scope > .panel-head");
+      if (head && head.nextSibling) form.insertBefore(a, head.nextSibling); else form.insertBefore(a, form.firstChild);
+    });
+  }
+
   if (typeof document !== "undefined") {
     document.addEventListener("DOMContentLoaded", function () {
       var m = location.pathname.match(/\/([^\/]+)\/(?:docs\/)?(?:index\.html)?$/);
       siblings(m ? m[1] : "");
       tabs();
       alignFields();
+      jumpLinks();
     });
   }
 
-  var api = { explain: explain, alignFields: alignFields, closeTip: closeTip, siblings: siblings, tabs: tabs, TOOLS: TOOLS, readParams: readParams, writeParams: writeParams, copy: copy, fmt: fmt, lineChart: lineChart, niceTicks: niceTicks, assist: assist, _buildPrompt: buildPrompt, _parseReply: parseReply, _quoteFound: quoteFound, _coerce: coerce };
+  var api = { explain: explain, alignFields: alignFields, exampleBanner: exampleBanner, jumpLinks: jumpLinks, closeTip: closeTip, siblings: siblings, tabs: tabs, TOOLS: TOOLS, readParams: readParams, writeParams: writeParams, copy: copy, fmt: fmt, lineChart: lineChart, niceTicks: niceTicks, assist: assist, _buildPrompt: buildPrompt, _parseReply: parseReply, _quoteFound: quoteFound, _coerce: coerce };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") window.Tool = api;
 })();

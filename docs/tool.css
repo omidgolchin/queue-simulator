@@ -138,3 +138,7 @@ select.example { font-size: var(--fs-small); }
 .fields.sg-on > :not(.sg) { margin-bottom: var(--sp-3); }
 .fields.sg-on > .group-label { margin: var(--sp-2) 0 6px; }
 .field-after:empty { display: none; }
+.ex-banner { margin: 0 0 var(--sp-3); padding: 6px 10px; border-radius: var(--radius); background: var(--accent-soft); color: var(--fg); font-size: var(--fs-small); line-height: 1.45; }
+.ex-banner .ex-tag { display: inline-block; font-size: var(--fs-caption); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-right: 4px; }
+.jump { display: none; }
+@media (max-width: 820px) { .jump { display: inline-block; margin: 0 0 var(--sp-3); font-size: var(--fs-small); font-weight: 600; } }

@@ -60,8 +60,9 @@
           <div class="field"><label for="aht">Average handle time</label><div class="input-wrap"><input id="aht" type="number" min="0.1" step="any"><span class="unit">min</span></div><div class="hint">Average minutes per call: talk time plus the wrap-up work after it.</div></div>
           <div class="field full"><label>Service target <button type="button" data-tip="sl"></button></label>
             <div class="target-row"><input id="tPct" type="number" min="1" max="99.9" step="any" aria-label="percent of calls"> % of calls answered within <input id="tSec" type="number" min="1" step="any" aria-label="seconds"> seconds</div><div class="hint">The promise you make callers. 80% within 20 seconds is a common call-center standard.</div></div>
-          <div class="field"><label for="patience">Callers hang up after about <button type="button" data-tip="abandon"></button></label><div class="input-wrap"><input id="patience" type="number" min="0" step="any" placeholder="never"><span class="unit">min</span></div><div class="hint">How long a typical caller waits before giving up. Leave empty if callers wait as long as it takes.</div></div>
+          <div class="field"><label for="patience">Callers hang up after about <button type="button" data-tip="abandon"></button></label><div class="input-wrap"><input id="patience" type="number" min="0" step="any" placeholder="never"><span class="unit">min</span></div><div class="hint">How long a typical caller waits before giving up. Leave empty if callers wait as long as it takes: the tool then uses the Erlang C formula. Enter a time and it simulates callers giving up instead.</div></div>
           <div class="field"><label for="shrink">Shrinkage <button type="button" data-tip="shrink"></button></label><div class="input-wrap"><input id="shrink" type="number" min="0" max="80" step="any"><span class="unit">%</span></div><div class="hint">Share of paid time agents are not on the phones: breaks, training, meetings. 30% is typical.</div></div>
+          <p class="footnote" id="capNote" style="grid-column:1/-1;margin:4px 0 0"></p>
         </div>
         <div class="actions" style="margin-top:12px">
           <button type="button" id="assistToggle">✦ Fill from my description</button>
@@ -152,7 +153,7 @@ occupancy = a / c</div>
         <div class="fields">
           <div class="field"><label for="dCalls">Calls per day</label><input id="dCalls" type="number" min="1" step="1" inputmode="numeric"><div class="hint">All calls expected in the day. Use a typical day of the week you are planning.</div></div>
           <div class="field"><label for="dShape">Shape of the day</label>
-            <select id="dShape"><option value="nyc">Typical weekday</option><option value="flat">Flat</option><option value="custom">My hourly counts</option></select><div class="hint">How calls spread over the day. "Typical weekday" peaks late morning; pick your own counts if you have them.</div></div>
+            <select id="dShape"><option value="nyc">Typical weekday</option><option value="flat">Flat</option><option value="custom">My hourly counts</option></select><div class="hint">How calls spread over the day. "Typical weekday" is the hourly pattern of New York City 311 calls in January 2024, scaled to your daily total; choose "My hourly counts" to paste yours.</div></div>
           <div class="field"><label for="dOpen">Open from</label><select id="dOpen"></select><div class="hint">The first hour you take calls.</div></div>
           <div class="field"><label for="dClose">Until</label><select id="dClose"></select><div class="hint">The hour you stop taking calls.</div></div>
           <div class="field full" id="pasteWrap" hidden><label for="dPaste">Calls in each open hour, in order</label><textarea class="paste" id="dPaste" placeholder="e.g. 80, 140, 210, 230, 200, 160, 150, 170, 140, 110, 90, 60"></textarea><div class="hint" id="pasteHint"></div></div>
