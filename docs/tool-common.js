@@ -10,6 +10,7 @@
  *   Tool.siblings(currentRepo)     the "More tools" footer line, from one shared list
  *   Tool.tabs(tablist)             arrow-key support for a mode switch
  *   Tool.exampleBanner(form, text) marks prefilled example content where it sits
+ *   Tool.exampleWatch(form, text)  same, and hides it at the visitor's first edit
  *
  * No dependencies. Works from file:// and on GitHub Pages.
  */
@@ -497,7 +498,7 @@
     ["bayesian-ab-lab", "A/B Test Decision Tool"],
     ["queue-simulator", "Call Center Staffing Planner"],
     ["experiment-hazard-simulator", "Agent Eval Planner"],
-    ["llm-eval-error-bar", "Error Bars for LLM Evals"],
+    ["llm-eval-error-bars", "Error Bars for LLM Evals"],
     ["ordering-policy-tester", "Ordering Policy Tester"],
     ["order-quantity-planner", "Order Quantity Planner"],
     ["production-line-simulator", "Production Line Bottleneck Finder"],
@@ -549,6 +550,23 @@
     b.hidden = false;
     b.innerHTML = '<span class="ex-tag">Example</span> ' + text;
   }
+  // Show the banner now and hide it at the visitor's first real edit of the form.
+  // Programmatic fills (examples, URL state) do not fire trusted events, and the
+  // example menu itself (.example) is ignored, so loading another example keeps it.
+  function exampleWatch(form, text) {
+    if (!form) return;
+    exampleBanner(form, text);
+    if (form._exWatch) return;
+    form._exWatch = true;
+    var off = function (e) {
+      if (!e.isTrusted) return;
+      var t = e.target;
+      if (t && t.classList && (t.classList.contains("example") || t.closest(".ex-keep"))) return;
+      exampleBanner(form, null);
+    };
+    form.addEventListener("input", off);
+    form.addEventListener("change", off);
+  }
   // On narrow screens the inputs come first; give a way straight to the result.
   function jumpLinks() {
     document.querySelectorAll(".work").forEach(function (w, i) {
@@ -571,7 +589,7 @@
     });
   }
 
-  var api = { explain: explain, alignFields: alignFields, exampleBanner: exampleBanner, jumpLinks: jumpLinks, closeTip: closeTip, siblings: siblings, tabs: tabs, TOOLS: TOOLS, readParams: readParams, writeParams: writeParams, copy: copy, fmt: fmt, lineChart: lineChart, niceTicks: niceTicks, assist: assist, _buildPrompt: buildPrompt, _parseReply: parseReply, _quoteFound: quoteFound, _coerce: coerce };
+  var api = { explain: explain, alignFields: alignFields, exampleBanner: exampleBanner, exampleWatch: exampleWatch, jumpLinks: jumpLinks, closeTip: closeTip, siblings: siblings, tabs: tabs, TOOLS: TOOLS, readParams: readParams, writeParams: writeParams, copy: copy, fmt: fmt, lineChart: lineChart, niceTicks: niceTicks, assist: assist, _buildPrompt: buildPrompt, _parseReply: parseReply, _quoteFound: quoteFound, _coerce: coerce };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") window.Tool = api;
 })();

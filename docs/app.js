@@ -28,9 +28,13 @@
   setInputs(state);
   EXAMPLES.forEach(function (ex, i) { var o = document.createElement("option"); o.value = i; o.textContent = ex.label; $("example").appendChild(o); });
   $("example").addEventListener("change", function () {
-    if (this.value === "") return; setInputs(EXAMPLES[+this.value].v); this.value = "";
+    if (this.value === "") return; var ex = EXAMPLES[+this.value]; setInputs(ex.v); this.value = "";
+    Tool.exampleWatch($("f-hour"), "<b>" + ex.label + "</b>. Type your own numbers over it; the answer updates as you type.");
     document.querySelectorAll(".field.filled").forEach(function (f) { f.classList.remove("filled"); }); runHour();
   });
+  var q0 = new URLSearchParams(location.search);
+  if (!IDS_H.some(function (k) { return q0.has(k); })) Tool.exampleWatch($("f-hour"), "<b>A busy hour:</b> 120 calls, 6 minutes each, 80% answered within 20 seconds. Type your own numbers over it; the answer updates as you type.");
+  if (!IDS_D.some(function (k) { return q0.has(k); })) Tool.exampleWatch($("f-day"), "<b>A typical day:</b> 1,800 calls from 08:00 to 20:00, spread like a weekday on New York City's 311 line. Type your own numbers over it.");
   function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
   IDS_H.forEach(function (id) { $(id).addEventListener("input", debounce(runHour, 250)); });
   IDS_D.forEach(function (id) { $(id).addEventListener("input", debounce(runDay, 200)); $(id).addEventListener("change", runDay); });
@@ -80,18 +84,23 @@
     need("aht", v.aht > 0 && v.aht <= 240, "Enter the average minutes per call, above 0 (up to 240).");
     need("tPct", v.tPct > 0 && v.tPct < 100, "Enter a percentage above 0 and below 100, such as 80.");
     need("tSec", v.tSec > 0 && v.tSec <= 3600, "Enter the answer-time limit in seconds, above 0.");
-    need("patience", v.patience === null || v.patience > 0, "Minutes above 0, or empty for never.");
+    need("patience", v.patience === null || v.patience > 0, "Enter how many minutes callers wait before hanging up, above 0, or leave it empty if they never hang up.");
     need("shrink", v.shrink !== null && v.shrink >= 0 && v.shrink < 80, "Enter a share from 0 up to (not including) 80%.");
     need("occCap", v.occCap >= 50 && v.occCap <= 100, "Enter a percentage from 50 to 100; 85 to 90 is typical.");
-    if (ok && v.patience === null && v.calls / 60 * v.aht > 3000) { need("calls", false, "Too large to plan here."); }
+    if (ok && v.patience === null && v.calls / 60 * v.aht > 3000) { need("calls", false, "This hour is too large to plan here. Enter fewer calls or shorter calls."); }
     return ok ? v : null;
   }
   function runHour() {
     var v = readHour();
     var urlState = { mode: "hour" }; IDS_H.forEach(function (k) { urlState[k] = $(k).value; }); Tool.writeParams(urlState);
+    var capNow = Number($("occCap").value);
+    $("capNote").textContent = (capNow >= 50 && capNow <= 100
+      ? "Agents are also kept under " + capNow + "% busy (change it under Settings)."
+      : "Agents are also kept under a busy-time cap, set under Settings; it needs a value from 50 to 100.")
+      + " If that cap needs more agents than the target does, the verdict says so.";
     if (!v) { $("vTitle").textContent = "Check the highlighted inputs"; $("vBody").textContent = ""; $("kpis").innerHTML = ""; $("checks").innerHTML = ""; $("verdict").className = "panel verdict v-neutral"; return; }
     var lam = v.calls / 60, T = v.tSec / 60, level = v.tPct / 100, cap = v.occCap / 100, sh = v.shrink / 100;
-    $("capNote").textContent = "Agents are also kept under " + v.occCap + "% busy (change it under Settings). If that cap needs more agents than the target does, the verdict says so.";
+
     var e = Staffing.staffErlang(lam, v.aht, T, level, cap);
     var res = { v: v, lam: lam, T: T, level: level, cap: cap, sh: sh, erlang: e };
     if (v.patience) {
@@ -214,12 +223,12 @@
     var urlState = { mode: "day" }; IDS_D.forEach(function (k) { urlState[k] = $(k).value; }); Tool.writeParams(urlState);
     var ok = true;
     function need(id, cond, msg) { fieldError(id, cond ? "" : msg); if (!cond) ok = false; }
-    need("dCalls", $("dShape").value === "custom" || num("dCalls") > 0, "Above 0.");
-    need("dAht", num("dAht") > 0, "Minutes, above 0.");
+    need("dCalls", $("dShape").value === "custom" || num("dCalls") > 0, "Enter the calls in the whole day, above 0, such as 1800.");
+    need("dAht", num("dAht") > 0, "Enter the average minutes per call, above 0, such as 6.");
     need("dShrink", num("dShrink") >= 0 && num("dShrink") < 80, "Enter a share from 0 up to (not including) 80%.");
     need("dPct", num("dPct") > 0 && num("dPct") < 100, "Enter a percentage above 0 and below 100, such as 80.");
-    need("dMin", num("dMin") >= 1, "1 or more.");
-    need("dClose", Number($("dClose").value) > Number($("dOpen").value), "After the opening hour.");
+    need("dMin", num("dMin") >= 1, "Enter the fewest agents on shift at any hour, 1 or more.");
+    need("dClose", Number($("dClose").value) > Number($("dOpen").value), "Pick a closing hour after the opening hour.");
     var dc = ok ? dayCalls() : null;
     if (dc && dc.err) { fieldError("dPaste", dc.err); ok = false; } else fieldError("dPaste", "");
     if (!ok) { $("dTitle").textContent = "Check the highlighted inputs"; $("dBody").textContent = ""; $("dKpis").innerHTML = ""; $("dChecks").innerHTML = ""; return; }

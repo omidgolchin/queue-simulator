@@ -50,7 +50,7 @@
       <p class="also"><b>Also here:</b> <i>Plan a whole day</i> staffs every hour of a shift · <i>Fill from my description</i> reads a pasted report · <i>Settings</i> caps how busy agents get and adds cost.</p>
     </div>
     <div class="work">
-      <form class="panel" novalidate onsubmit="return false">
+      <form class="panel" id="f-hour" novalidate onsubmit="return false">
         <div class="panel-head">
           <h2>Your queue</h2>
           <select class="example" id="example" aria-label="Load an example"><option value="">Load example…</option></select>
@@ -94,8 +94,9 @@
           <button type="button" id="minus">− 1 agent</button>
           <button type="button" id="plus">+ 1 agent</button>
           <button type="button" id="restart">Restart</button>
-          <select id="speed" aria-label="Speed"><option value="1">1 min per second</option><option value="3" selected>3 min per second</option><option value="10">10 min per second</option></select>
+          <select id="speed" aria-label="Speed" aria-describedby="speedHint"><option value="1">1 min per second</option><option value="3" selected>3 min per second</option><option value="10">10 min per second</option></select>
         </div>
+        <p class="hint" id="speedHint" style="margin:6px 0 0">Speed sets how many minutes of the call center pass per second of animation. It changes the pace, not the result.</p>
       </div>
       <p class="small muted" id="liveLabel" style="margin:6px 0 0"></p>
       <div class="floor" id="floor" aria-label="agents"></div>
@@ -148,7 +149,7 @@ occupancy = a / c</div>
       <p class="also"><b>Also here:</b> <i>The plan as a table</i> (under the chart) is ready to copy into a roster.</p>
     </div>
     <div class="work">
-      <form class="panel" novalidate onsubmit="return false">
+      <form class="panel" id="f-day" novalidate onsubmit="return false">
         <div class="panel-head"><h2>Your day</h2></div>
         <div class="fields">
           <div class="field"><label for="dCalls">Calls per day</label><input id="dCalls" type="number" min="1" step="1" inputmode="numeric"><div class="hint">All calls expected in the day. Use a typical day of the week you are planning.</div></div>
