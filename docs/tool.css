@@ -182,3 +182,18 @@ select.example { font-size: var(--fs-small); }
 .heat-cell.b2 { background: color-mix(in srgb, var(--series-2) 38%, var(--card)); }
 .heat-cell.b3 { background: color-mix(in srgb, var(--bad) 30%, var(--card)); }
 .heat-cell.b1 .hc-h, .heat-cell.b2 .hc-h, .heat-cell.b3 .hc-h { color: var(--fg); opacity: .75; }
+
+/* Guide: "Start here" strip, situations and the when-to-use table (added 2026-11). */
+.start-here { margin: 12px 0 14px; padding: 12px 14px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius); background: var(--card); font-size: var(--fs-small); }
+.start-here p { margin: 0 0 6px; }
+.start-here ol { margin: 0; padding-left: 1.3em; }
+.start-here li { margin: 2px 0; }
+.guide .fit-table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; }
+.guide .fit-table th, .guide .fit-table td { text-align: left; vertical-align: top; padding: 6px 8px; border-top: 1px solid var(--border); }
+.guide .fit-table th { font-weight: 600; }
+@media (max-width: 560px) {
+  .guide .fit-table thead { display: none; }
+  .guide .fit-table tr { display: block; border-top: 1px solid var(--border); padding: 6px 0; }
+  .guide .fit-table td { display: block; border: 0; padding: 2px 0; }
+  .guide .fit-table td:first-child { font-weight: 600; }
+}

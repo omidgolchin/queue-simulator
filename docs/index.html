@@ -32,6 +32,14 @@
     </div>
     <h1>Call Center Staffing Planner</h1>
     <p class="kit-tagline">How many agents you need, hour by hour, to hit your service target. Checked by simulation, not just the formula.</p>
+    <div class="start-here">
+      <p class="sh-q"><b>It answers:</b> how many agents to put on the phones, and how many people to schedule, so that callers are answered within the promise you make them.</p>
+      <ol>
+        <li><b>Pick the situation closest to yours</b> in "Start from a common situation", or keep the busy-hour example already filled in.</li>
+        <li><b>Type your own numbers</b> over it: calls in your busiest hour and the average call length. The answer updates as you type.</li>
+        <li><b>Read the large number</b>, then the checks under it. Before you rely on it, check <a href="#fit" class="open-details">when to use this tool, and when not</a>.</li>
+      </ol>
+    </div>
     <div class="tool-modes seg" role="tablist" aria-label="What do you want to plan?">
       <button type="button" role="tab" id="tab-hour" class="active" aria-selected="true">Plan one hour</button>
       <button type="button" role="tab" id="tab-day" aria-selected="false">Plan a whole day</button>
@@ -44,7 +52,7 @@
       <form class="panel" id="f-hour" novalidate onsubmit="return false">
         <div class="panel-head">
           <h2>Your queue</h2>
-          <select class="example" id="example" aria-label="Load an example"><option value="">Load example…</option></select>
+          <select class="example" id="example" aria-label="Start from a common situation"><option value="">Start from a common situation…</option></select>
         </div>
         <div class="fields wide">
           <div class="field"><label for="calls">Calls per hour</label><input id="calls" type="number" min="1" step="any" inputmode="decimal"><div class="hint">Calls arriving in your busiest hour. Your phone system's hourly report has it.</div></div>
@@ -126,7 +134,7 @@ occupancy = a / c</div>
         <p><b>Occupancy cap.</b> If the target is met with agents busier than the cap, agents are added until they are not. Sustained occupancy above about 90% raises handle times and turnover, so the formula's answer is not schedulable.</p>
         <p><b>Callers who hang up.</b> Erlang C assumes infinite patience and overstates waits when callers abandon. With a patience set, the recommendation comes from a simulation of the queue with exponential patience (20 independent runs of 8 hours after a 1-hour warm-up, the same random numbers for every agent count), and the service level counts hung-up calls as missed. The simulation engine agrees with this repository's SimPy simulator within its confidence intervals (tested).</p>
         <p><b>Shrinkage</b> converts agents on the phones into people to schedule: scheduled = agents ÷ (1 − shrinkage), rounded up.</p>
-        <p class="footnote">The experiments behind this tool (validation against Erlang C and Little's law, the rush-hour finding, whether language models can do queueing math) are in <a href="https://github.com/omidgolchin/queue-simulator#research-notes">Research notes</a>.</p>
+        <p class="footnote">The study behind this tool (validation against Erlang C and Little's law, the rush-hour finding, whether language models can do queueing math) is summarised under <a href="#origin" class="open-details">Where this tool comes from</a>.</p>
       </div>
     </details>
   </section>
@@ -183,6 +191,40 @@ occupancy = a / c</div>
       </div>
     </details>
   </section>
+
+  <details class="more guide" id="fit">
+    <summary>When to use it, and when not <span class="sub">assumptions, limits, alternatives</span></summary>
+    <div class="more-body small">
+      <p><b>Use it</b> to size an inbound phone queue: a first head count for a busy hour, a whole-day roster, a check on a number a vendor or a spreadsheet gave you, or how much margin a plan has.</p>
+      <p><b>It assumes</b> the following. Each line says what happens to the answer when your line breaks the assumption.</p>
+      <table class="fit-table">
+        <thead><tr><th>Assumption</th><th>If yours differs</th></tr></thead>
+        <tbody>
+          <tr><td>Calls arrive at random within the hour, at a steady rate.</td><td>Bursts (an outage, a mailing, a TV ad) bring more waiting than the tool shows. Plan the burst as its own short, busier period.</td></tr>
+          <tr><td>One queue: every agent can take every call.</td><td>With separate skills or languages, each group is its own smaller queue and needs more agents in total than the tool shows for the pooled line. Plan each group separately as a first cut.</td></tr>
+          <tr><td>Call lengths vary about as much as in a typical center (exponential spread).</td><td>Very uneven calls wait longer: in the study, call lengths twice as variable roughly doubled the average wait (2.05 against 1.07 minutes). Steadier calls wait less.</td></tr>
+          <tr><td>An agent handles one call at a time.</td><td>Chat agents serving two or three sessions at once are outside this model.</td></tr>
+          <tr><td>Callers who hang up do not call back (when you set a patience).</td><td>Repeat callers add load the tool does not count; raise calls per hour to include them.</td></tr>
+          <tr><td>Each hour stands alone: no queue carries over from the hour before.</td><td>After an understaffed hour, the next hour starts with a backlog and needs more than the plan shows.</td></tr>
+          <tr><td>Shrinkage is one flat share of paid time.</td><td>If breaks and training cluster at certain hours, add people in those hours by hand.</td></tr>
+        </tbody>
+      </table>
+      <p><b>Do not use it for</b> work that can wait, such as email, tickets or back-office tasks (plan those by workload over the day, not by waiting time); outbound or blended dialing; callback or virtual-hold systems; or multi-skill routing you need to plan exactly. For those, a workforce-management system with multi-skill simulation is the right tool.</p>
+    </div>
+  </details>
+
+  <details class="more guide" id="origin">
+    <summary>Where this tool comes from <span class="sub">the study and how the tool was extracted</span></summary>
+    <div class="more-body small">
+      <p>The tool comes out of a study, <a href="https://github.com/omidgolchin/call-center-queueing-study">"Where the call-center formula breaks, and can an LLM do queueing math?"</a>. The study built a queue simulator, checked that it reproduces the textbook formula (Erlang C: inside the simulation's 95% interval in 12 of 12 settings), then used it where the formula stops working. Three findings shaped this tool:</p>
+      <ul>
+        <li><b>Callers who hang up</b> break the formula: at 95% utilisation with 5 agents it predicts a 26-minute wait, while with 10-minute patience 15% of callers give up and those served wait about 1.3 minutes. So the tool simulates the queue whenever you set a patience.</li>
+        <li><b>Rush hours</b> break average-hour planning: a day shaped like New York City's 311 line, staffed for its average hour, left 41% of callers waiting over 20 seconds at the peak. So the day plan staffs each hour on its own.</li>
+        <li><b>Uneven call lengths</b> double waits. The tool keeps the formula's typical spread and says so above, rather than guess yours.</li>
+      </ul>
+      <p><b>How it was generalised.</b> The study fixed one center: 60 calls an hour, a 311-shaped day, chosen settings. The tool keeps the validated engine and turns the study's fixed settings into your inputs (calls, call length, target, patience, shrinkage, opening hours), and adds what a planner needs that the study did not: the occupancy cap, shrinkage, cost and the margin checks. The study's second half, whether language models can do this math, did not become part of the tool; its AI fill only reads your description into the form and never computes the answer.</p>
+    </div>
+  </details>
 
   <footer class="kit-footer">
     <p class="kit-siblings"></p>

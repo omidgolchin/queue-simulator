@@ -15,6 +15,7 @@ For anyone who runs a phone line (a support desk, a clinic, a help line): enter 
 - **Watch the hour.** The recommended staffing runs live, one second per minute; remove an agent and watch the queue build.
 - **Fill from my description.** Describe your center in plain words or paste an interval report from your phone system; a language model (your key, or copy the prompt into any assistant) fills the form, quoting the phrase each number came from. The model never computes the answer.
 - **Copy summary / Copy link / Download CSV.**
+- **Start here.** The page opens with the question it answers and three steps; a list of common situations fills the form; and a section says when to use the tool and when not.
 - **Help where you need it.** Each mode opens with a line saying what to enter and what you get; every input has a line under it saying what the number is, why it matters and where to find it; and every technical term in the inputs and results has a **?** that opens a plain-language explanation.
 
 ## Built-in checks
@@ -65,9 +66,49 @@ For anyone who runs a phone line (a support desk, a clinic, a help line): enter 
 
 - Planning one hour well is not enough: the planner needed a day view because the rush hour is where averages fail.
 
-## The study behind it
+## Common situations
 
-This tool was built from a study, which lives in its own repository: [Where the call-center formula breaks, and can an LLM do queueing math?](https://github.com/omidgolchin/call-center-queueing-study). A simulation study: validation against Erlang C, where the formula breaks (variable calls, hang-ups, rush hours), and a small check of three open language models. The study repository holds its question, frozen plan, results and limitations; the copies of its scripts and outputs kept here are what this tool's tests check against.
+The form opens with "Start from a common situation". Each entry fills the form with illustrative settings and says why they differ from the standard case:
+
+| Situation | What changes |
+|---|---|
+| Customer service line, the 80/20 standard | The textbook case: 120 calls an hour, 6 minutes, 80% within 20 seconds, nobody hangs up. |
+| Support desk (30 calls an hour) | Small teams need agents idle more of the time for the same promise, so more agents per call. |
+| Technical support, long calls | 12-minute calls and a looser promise (80% within a minute). |
+| Sales line, callers hang up fast | Patience of 1.5 minutes, so the answer comes from simulation and hung-up calls count as missed. |
+| Clinic phone line, callers hang up | Short calls, 90% within 30 seconds, callers give up after about 3 minutes. |
+| Urgent line, strict target | 90% within 15 seconds: expect agents idle about half the time. |
+| Monday rush (75 an hour) | The busiest hour planned on its own. |
+| Retail peak season | Twice the volume, impatient callers, more shrinkage. |
+| Large center, tight target | Large centers keep a strict promise with busier agents; watch the occupancy cap. |
+
+The settings are illustrative, not industry data. To add a situation, append an entry `{label, why, v}` to `EXAMPLES` in `docs/app.js`; `v` holds the form fields to change.
+
+## When to use it, and when not
+
+Use it to size an inbound phone queue: a first head count for a busy hour, a whole-day roster, a check on a number from a vendor or a spreadsheet, or the margin a plan has.
+
+| It assumes | If yours differs |
+|---|---|
+| Calls arrive at random within the hour, at a steady rate. | Bursts (an outage, a mailing, a TV ad) bring more waiting than shown. Plan the burst as its own short, busier period. |
+| One queue: every agent can take every call. | Separate skills or languages are smaller queues and need more agents in total. Plan each group separately as a first cut. |
+| Call lengths vary like a typical center's (exponential). | Very uneven calls wait longer: in the study, CV 2 roughly doubled the average wait (2.05 against 1.07 minutes). Steadier calls wait less. |
+| An agent handles one call at a time. | Chat agents with several sessions at once are outside this model. |
+| Callers who hang up do not call back. | Add repeat calls to calls per hour. |
+| Each hour stands alone. | After an understaffed hour, the backlog carries into the next. |
+| Shrinkage is one flat share of paid time. | If breaks and training cluster, add people in those hours by hand. |
+
+Do not use it for work that can wait (email, tickets, back-office tasks: plan those by workload, not waiting time), outbound or blended dialing, callback or virtual-hold systems, or multi-skill routing you need to plan exactly. A workforce-management system with multi-skill simulation is the right tool for those.
+
+## The study behind it, and how the tool was extracted
+
+This tool was built from a study, which lives in its own repository: [Where the call-center formula breaks, and can an LLM do queueing math?](https://github.com/omidgolchin/call-center-queueing-study). The study built a queue simulator, checked it against Erlang C (12 of 12 settings inside the 95% interval), then used it where the formula stops working. Three findings shaped the tool:
+
+- **Callers who hang up** break the formula (a 26-minute predicted wait against about 1.3 minutes simulated, with 15% giving up), so the tool simulates whenever a patience is set.
+- **Rush hours** break average-hour planning (41% of callers over 20 seconds at the peak of a 311-shaped day staffed for its average hour), so the day plan staffs each hour on its own.
+- **Uneven call lengths** double waits; the tool keeps the typical spread and says so rather than guess yours.
+
+The study fixed one center (60 calls an hour, a 311-shaped day). The tool keeps the validated engine, turns those fixed settings into inputs, and adds what a planner needs that the study did not: the occupancy cap, shrinkage, cost and margin checks. The study's language-model half did not become part of the tool; the AI fill only reads a description into the form. The copies of the study's scripts and outputs kept here are what this tool's tests check against.
 
 ## Run it
 

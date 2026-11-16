@@ -3,16 +3,25 @@
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   var F = Tool.fmt;
+  function openDetails(id) { var d = document.getElementById(id); if (d && d.tagName === "DETAILS") { d.open = true; d.scrollIntoView({ block: "start" }); var su = d.querySelector("summary"); if (su) su.focus(); } }
+  document.querySelectorAll("a.open-details").forEach(function (a) { a.addEventListener("click", function (e) { e.preventDefault(); openDetails(a.getAttribute("href").slice(1)); }); });
+  if (location.hash === "#fit" || location.hash === "#origin") openDetails(location.hash.slice(1));
   var DEFAULTS = {
     mode: "hour", calls: 120, aht: 6, tPct: 80, tSec: 20, patience: "", shrink: 30, occCap: 90, cost: "",
     dCalls: 1800, dShape: "nyc", dOpen: 8, dClose: 20, dPaste: "", dAht: 6, dShrink: 30, dPct: 80, dSec: 20, dMin: 2, dCost: 28
   };
+  /* Common situations. Settings are illustrative, not industry data. To add one,
+     append {label, why, v} with the form fields to change; fields left out keep their value. */
   var EXAMPLES = [
-    { label: "Support desk (30 calls an hour)", v: { calls: 30, aht: 5, tPct: 80, tSec: 20, patience: "", shrink: 30 } },
-    { label: "Clinic phone line, callers hang up", v: { calls: 40, aht: 4, tPct: 90, tSec: 30, patience: 3, shrink: 25 } },
-    { label: "Monday rush (75 an hour)", v: { calls: 75, aht: 5, tPct: 80, tSec: 20, patience: "", shrink: 30 } },
-    { label: "Retail peak season", v: { calls: 240, aht: 6, tPct: 80, tSec: 20, patience: 2, shrink: 35 } },
-    { label: "Large center, tight target", v: { calls: 600, aht: 4.5, tPct: 90, tSec: 15, patience: "", shrink: 32 } }
+    { label: "Customer service line, the 80/20 standard", why: "120 calls an hour, 6 minutes each, 80% answered within 20 seconds, nobody hangs up: the textbook case Erlang C was made for.", v: { calls: 120, aht: 6, tPct: 80, tSec: 20, patience: "", shrink: 30 } },
+    { label: "Support desk (30 calls an hour)", why: "A small desk. Small teams need agents idle more of the time to keep the same promise (busy about half the time here, against three quarters at 120 calls an hour), so they need more agents per call.", v: { calls: 30, aht: 5, tPct: 80, tSec: 20, patience: "", shrink: 30 } },
+    { label: "Technical support, long calls", why: "Long calls (12 minutes): when every agent is busy, the next one frees up later, so the promise is usually looser (80% within a minute). Call lengths in technical support are often very uneven, which the tool does not model: see when not to use it.", v: { calls: 50, aht: 12, tPct: 80, tSec: 60, patience: "", shrink: 35 } },
+    { label: "Sales line, callers hang up fast", why: "Callers who can buy elsewhere give up after about a minute and a half, so the tool simulates the queue and counts every hung-up call as missed.", v: { calls: 90, aht: 4, tPct: 80, tSec: 20, patience: 1.5, shrink: 30 } },
+    { label: "Clinic phone line, callers hang up", why: "Short calls, a strict promise (90% within 30 seconds) and callers who give up after about 3 minutes.", v: { calls: 40, aht: 4, tPct: 90, tSec: 30, patience: 3, shrink: 25 } },
+    { label: "Urgent line, strict target", why: "Almost every call must be answered at once (90% within 15 seconds), so agents spend much of the hour waiting for calls. Expect low occupancy: that is the price of the promise.", v: { calls: 60, aht: 3, tPct: 90, tSec: 15, patience: "", shrink: 30 } },
+    { label: "Monday rush (75 an hour)", why: "The busiest hour of the week. Plan for it on its own: an average hour's staffing leaves the rush badly short (use Plan a whole day to see the gap).", v: { calls: 75, aht: 5, tPct: 80, tSec: 20, patience: "", shrink: 30 } },
+    { label: "Retail peak season", why: "Twice the usual volume, impatient callers and more shrinkage from temporary staff in training.", v: { calls: 240, aht: 6, tPct: 80, tSec: 20, patience: 2, shrink: 35 } },
+    { label: "Large center, tight target", why: "600 calls an hour and 90% within 15 seconds. Large centers keep a strict promise with busier agents (over 80% here), so they need fewer agents per call. Watch the occupancy cap: near 90% it, not the target, sets the number.", v: { calls: 600, aht: 4.5, tPct: 90, tSec: 15, patience: "", shrink: 32 } }
   ];
   var IDS_H = ["calls", "aht", "tPct", "tSec", "patience", "shrink", "occCap", "cost"];
   var IDS_D = ["dCalls", "dShape", "dOpen", "dClose", "dPaste", "dAht", "dShrink", "dPct", "dSec", "dMin", "dCost"];
@@ -29,7 +38,7 @@
   EXAMPLES.forEach(function (ex, i) { var o = document.createElement("option"); o.value = i; o.textContent = ex.label; $("example").appendChild(o); });
   $("example").addEventListener("change", function () {
     if (this.value === "") return; var ex = EXAMPLES[+this.value]; setInputs(ex.v); this.value = "";
-    Tool.exampleWatch($("f-hour"), "<b>" + ex.label + "</b>. Type your own numbers over it; the answer updates as you type.");
+    Tool.exampleWatch($("f-hour"), "<b>" + ex.label + ".</b> " + ex.why + " The settings are illustrative: type your own numbers over them.");
     document.querySelectorAll(".field.filled").forEach(function (f) { f.classList.remove("filled"); }); runHour();
   });
   var q0 = new URLSearchParams(location.search);
