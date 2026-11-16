@@ -65,14 +65,9 @@ For anyone who runs a phone line (a support desk, a clinic, a help line): enter 
 
 - Planning one hour well is not enough: the planner needed a day view because the rush hour is where averages fail.
 
-## Research notes
+## The study behind it
 
-The studies behind the tool, kept out of it on purpose. Full numbers in [results/summary.md](results/summary.md).
-
-- **Validation.** Across 12 M/M/c settings the formula falls inside the simulation's 95% interval in 12 of 12; Little's law holds within 0.12%. ![Average wait vs number of agents](results/figures/wait_vs_servers.png)
-- **Where the formula breaks.** Very variable call lengths (lognormal, CV 2) doubled the average wait at the same mean (2.05 vs 1.07 min). With impatient callers at 95% utilization, 14.7% hang up and the served callers' wait collapses from 26 min to 1.3 min.
-- **Rush hours.** On a day shaped like NYC 311 demand, staffing for the average hour left 41.4% of callers waiting over 20 seconds in the rush.
-- **Can a language model do queueing math?** 15 scenarios, three open models, three ways. Asked directly, all three were close on 9 of 15, weak where the formula breaks. Asked to write code, one model was close on 14 of 15. Asked to simulate 20 customers by hand, they tracked about half before drifting. A small check, not a ranking.
+This tool was built from a study, which lives in its own repository: [Where the call-center formula breaks, and can an LLM do queueing math?](https://github.com/omidgolchin/call-center-queueing-study). A simulation study: validation against Erlang C, where the formula breaks (variable calls, hang-ups, rush hours), and a small check of three open language models. The study repository holds its question, frozen plan, results and limitations; the copies of its scripts and outputs kept here are what this tool's tests check against.
 
 ## Run it
 
