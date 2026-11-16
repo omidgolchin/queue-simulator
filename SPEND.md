@@ -30,4 +30,4 @@ together/Tev1-4B-experimental $0.0002 (pilot only).
 - No other paid services. All simulation ran locally.
 
 - 2026-11-16: structural-variation restructure (segmented header switch, live-sim-first hour view with big-number recommendation, day heatmap) — $0.00 API spend; all work local.
-## 2026-11-16: guide sections (start here, situations, when to use, origin). $0.00
+- 2026-11-16: guide sections (start here, situations, when to use, where it comes from) — $0.00 API spend; all work local.
