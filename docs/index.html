@@ -32,30 +32,21 @@
     </div>
     <h1>Call Center Staffing Planner</h1>
     <p class="kit-tagline">How many agents you need, hour by hour, to hit your service target. Checked by simulation, not just the formula.</p>
+    <div class="tool-modes seg" role="tablist" aria-label="What do you want to plan?">
+      <button type="button" role="tab" id="tab-hour" class="active" aria-selected="true">Plan one hour</button>
+      <button type="button" role="tab" id="tab-day" aria-selected="false">Plan a whole day</button>
+    </div>
   </header>
-
-  <div class="tool-modes" role="tablist" aria-label="What do you want to plan?">
-    <button type="button" role="tab" id="tab-hour" class="active" aria-selected="true">Plan one hour</button>
-    <button type="button" role="tab" id="tab-day" aria-selected="false">Plan a whole day</button>
-  </div>
 
   <!-- ================= ONE HOUR ================= -->
   <section id="view-hour" role="tabpanel" aria-labelledby="tab-hour">
-    <div class="guide" aria-label="How to use this mode">
-      <ol class="steps">
-        <li><b>Describe one busy hour</b>: how many calls arrive and how long each takes, from your phone system's reports.</li>
-        <li><b>Set your service target</b>, for example 80% of calls answered within 20 seconds.</li>
-        <li><b>Get the head count</b>: agents on the phones and people to schedule. <i>Watch the hour</i> lets you see it play out, and the chart shows what one more or one fewer agent does.</li>
-      </ol>
-      <p class="also"><b>Also here:</b> <i>Plan a whole day</i> staffs every hour of a shift · <i>Fill from my description</i> reads a pasted report · <i>Settings</i> caps how busy agents get and adds cost.</p>
-    </div>
-    <div class="work">
+    <p class="mode-intro">Describe one busy hour — calls, handle time, your service target — and get the head count, then watch that hour play out live below.</p>
       <form class="panel" id="f-hour" novalidate onsubmit="return false">
         <div class="panel-head">
           <h2>Your queue</h2>
           <select class="example" id="example" aria-label="Load an example"><option value="">Load example…</option></select>
         </div>
-        <div class="fields">
+        <div class="fields wide">
           <div class="field"><label for="calls">Calls per hour</label><input id="calls" type="number" min="1" step="any" inputmode="decimal"><div class="hint">Calls arriving in your busiest hour. Your phone system's hourly report has it.</div></div>
           <div class="field"><label for="aht">Average handle time</label><div class="input-wrap"><input id="aht" type="number" min="0.1" step="any"><span class="unit">min</span></div><div class="hint">Average minutes per call: talk time plus the wrap-up work after it.</div></div>
           <div class="field full"><label>Service target <button type="button" data-tip="sl"></button></label>
@@ -71,22 +62,6 @@
         <div id="assistMount"></div>
       </form>
 
-      <div>
-        <section class="panel verdict" id="verdict" aria-live="polite">
-          <p class="v-kicker">Recommendation</p>
-          <p class="v-title" id="vTitle">…</p>
-          <p class="v-body" id="vBody"></p>
-          <div class="kpis" id="kpis"></div>
-          <div class="checks" id="checks"></div>
-        </section>
-        <div class="actions">
-          <button type="button" id="copySummary">Copy summary</button>
-          <button type="button" id="copyLink">Copy link</button>
-          <span class="toast" id="toast"></span>
-        </div>
-      </div>
-    </div>
-
     <section class="panel" id="livePanel" style="margin-top:16px">
       <div class="live-head">
         <h2 style="margin:0">Watch the hour <button type="button" data-tip="watch"></button></h2>
@@ -98,12 +73,30 @@
         </div>
         <p class="hint" id="speedHint" style="margin:6px 0 0">Speed sets how many minutes of the call center pass per second of animation. It changes the pace, not the result.</p>
       </div>
+      <div class="big-rec" aria-live="polite">
+        <span class="big-num" id="bigNum">…</span>
+        <span class="big-side"><span class="big-lbl">agents on the phones</span>
+        <span class="big-detail" id="bigDetail"></span></span>
+      </div>
       <p class="small muted" id="liveLabel" style="margin:6px 0 0"></p>
       <div class="floor" id="floor" aria-label="agents"></div>
       <div class="small muted">Waiting: <b id="qn" class="num" style="color:var(--fg)">0</b></div>
       <div class="qbar" id="qbar" aria-label="callers waiting"></div>
       <div class="live-stats" id="liveStats"></div>
     </section>
+
+        <section class="panel verdict" id="verdict" aria-live="polite" style="margin-top:16px">
+          <p class="v-kicker">Recommendation in full</p>
+          <p class="v-title" id="vTitle">…</p>
+          <p class="v-body" id="vBody"></p>
+          <div class="kpis" id="kpis"></div>
+          <div class="checks" id="checks"></div>
+        </section>
+        <div class="actions">
+          <button type="button" id="copySummary">Copy summary</button>
+          <button type="button" id="copyLink">Copy link</button>
+          <span class="toast" id="toast"></span>
+        </div>
 
     <section class="panel" style="margin-top:16px">
       <h2>Service level by number of agents <button type="button" data-tip="erlang"></button></h2>
@@ -140,18 +133,10 @@ occupancy = a / c</div>
 
   <!-- ================= DAY ================= -->
   <section id="view-day" role="tabpanel" aria-labelledby="tab-day" hidden>
-    <div class="guide" aria-label="How to use this mode">
-      <ol class="steps">
-        <li><b>Enter the day's calls</b> and opening hours. Pick a typical shape, or paste your own counts for each hour.</li>
-        <li><b>Set the service target</b> and the share of paid time spent off the phones.</li>
-        <li><b>Get the plan</b>: agents for every hour, total paid hours, and the share of the day's calls answered on time.</li>
-      </ol>
-      <p class="also"><b>Also here:</b> <i>The plan as a table</i> (under the chart) is ready to copy into a roster.</p>
-    </div>
-    <div class="work">
+    <p class="mode-intro">Enter the day's calls and opening hours and get agents for every hour — as a heatmap, a chart, and a table ready to copy into a roster.</p>
       <form class="panel" id="f-day" novalidate onsubmit="return false">
         <div class="panel-head"><h2>Your day</h2></div>
-        <div class="fields">
+        <div class="fields wide">
           <div class="field"><label for="dCalls">Calls per day</label><input id="dCalls" type="number" min="1" step="1" inputmode="numeric"><div class="hint">All calls expected in the day. Use a typical day of the week you are planning.</div></div>
           <div class="field"><label for="dShape">Shape of the day</label>
             <select id="dShape"><option value="nyc">Typical weekday</option><option value="flat">Flat</option><option value="custom">My hourly counts</option></select><div class="hint">How calls spread over the day. "Typical weekday" is the hourly pattern of New York City 311 calls in January 2024, scaled to your daily total; choose "My hourly counts" to paste yours.</div></div>
@@ -166,8 +151,7 @@ occupancy = a / c</div>
           <div class="field"><label for="dCost">Cost of one paid hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="dCost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div><div class="hint">What one paid hour costs, to price the whole day. Leave empty to skip.</div></div>
         </div>
       </form>
-      <div>
-        <section class="panel verdict v-accent" id="dVerdict" aria-live="polite">
+        <section class="panel verdict v-accent" id="dVerdict" aria-live="polite" style="margin-top:16px">
           <p class="v-kicker">Day plan</p>
           <p class="v-title" id="dTitle">…</p>
           <p class="v-body" id="dBody"></p>
@@ -180,8 +164,12 @@ occupancy = a / c</div>
           <button type="button" id="dLink">Copy link</button>
           <span class="toast" id="dToast"></span>
         </div>
-      </div>
-    </div>
+    <section class="panel" style="margin-top:16px">
+      <h2>The day at a glance</h2>
+      <p class="small muted" id="heatTotals" style="margin:0 0 10px"></p>
+      <div class="heatmap" id="dayHeat" role="img" aria-label="Heatmap of staffing by hour: each cell shows an hour and the agents on the phones; deeper colour means agents are busier and the hour is tighter. The same numbers are in the table under the chart below."></div>
+      <p class="chart-caption">Each cell is one hour: the number is agents on the phones. Paler means comfortable; deeper colour means agents are busier and the hour has less slack. The table under the chart has every number in text.</p>
+    </section>
     <section class="panel" style="margin-top:16px">
       <h2>Agents on the phones, hour by hour</h2>
       <div class="svgchart" id="dayChart"></div>

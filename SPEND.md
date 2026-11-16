@@ -28,3 +28,5 @@ together/Tev1-4B-experimental $0.0002 (pilot only).
 - GitHub Actions (CI): not used yet — the repository is local-only
   (hosting pending). The CI workflow makes no API calls.
 - No other paid services. All simulation ran locally.
+
+- 2026-11-16: structural-variation restructure (segmented header switch, live-sim-first hour view with big-number recommendation, day heatmap) — $0.00 API spend; all work local.

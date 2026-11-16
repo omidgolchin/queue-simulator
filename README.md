@@ -4,7 +4,7 @@ For anyone who runs a phone line (a support desk, a clinic, a help line): enter 
 
 ![The planner on three examples (a support desk, a clinic line where callers hang up, a Monday rush), the explanation of shrinkage, and the whole-day plan](docs/hero.gif)
 
-![The planner on a desktop: the three-step guide, the inputs with a hint under each, and the recommendation with its checks](docs/screenshots/desktop.png)
+![The planner on a desktop: the compact form above the live simulation, the recommendation as a large number over the queue, and its checks](docs/screenshots/desktop.png)
 
 **Use it:** https://omidgolchin.github.io/queue-simulator/ (runs in your browser; nothing you type leaves it)
 
@@ -15,7 +15,7 @@ For anyone who runs a phone line (a support desk, a clinic, a help line): enter 
 - **Watch the hour.** The recommended staffing runs live, one second per minute; remove an agent and watch the queue build.
 - **Fill from my description.** Describe your center in plain words or paste an interval report from your phone system; a language model (your key, or copy the prompt into any assistant) fills the form, quoting the phrase each number came from. The model never computes the answer.
 - **Copy summary / Copy link / Download CSV.**
-- **Help where you need it.** Each mode opens with three steps saying what to enter and what you get; every input has a line under it saying what the number is, why it matters and where to find it; and every technical term in the inputs and results has a **?** that opens a plain-language explanation.
+- **Help where you need it.** Each mode opens with a line saying what to enter and what you get; every input has a line under it saying what the number is, why it matters and where to find it; and every technical term in the inputs and results has a **?** that opens a plain-language explanation.
 
 ## Built-in checks
 

@@ -98,7 +98,7 @@
       ? "Agents are also kept under " + capNow + "% busy (change it under Settings)."
       : "Agents are also kept under a busy-time cap, set under Settings; it needs a value from 50 to 100.")
       + " If that cap needs more agents than the target does, the verdict says so.";
-    if (!v) { $("vTitle").textContent = "Check the highlighted inputs"; $("vBody").textContent = ""; $("kpis").innerHTML = ""; $("checks").innerHTML = ""; $("verdict").className = "panel verdict v-neutral"; return; }
+    if (!v) { $("vTitle").textContent = "Check the highlighted inputs"; $("vBody").textContent = ""; $("kpis").innerHTML = ""; $("checks").innerHTML = ""; $("verdict").className = "panel verdict v-neutral"; $("bigNum").textContent = "–"; $("bigDetail").textContent = "Check the highlighted inputs above."; return; }
     var lam = v.calls / 60, T = v.tSec / 60, level = v.tPct / 100, cap = v.occCap / 100, sh = v.shrink / 100;
 
     var e = Staffing.staffErlang(lam, v.aht, T, level, cap);
@@ -132,6 +132,8 @@
     if (r.sim) body += " Callers hang up after about " + v.patience + " minutes, so this comes from simulation; about " + F.pct(r.abandon, 1) + " of callers hang up. " + (r.c !== r.erlang.c ? "The formula, which assumes nobody hangs up, would say " + r.erlang.c + "." : "The formula agrees.");
     if (v.cost) body += " Cost: " + F.money(r.sched * v.cost) + " for the hour.";
     $("vTitle").textContent = title; $("vBody").textContent = body; $("verdict").className = "panel verdict v-good";
+    $("bigNum").textContent = r.c;
+    $("bigDetail").textContent = "Schedule " + r.sched + " " + (r.sched === 1 ? "person" : "people") + " · " + F.pct(r.sl, 0) + " answered within " + v.tSec + " s · average wait " + secs(r.asa) + " · agents busy " + F.pct(r.occ, 0) + " of the time.";
     r.title = title; r.body = body;
     var k = [[F.pct(r.sl, 0), "answered within " + v.tSec + " s", "sl"], [secs(r.asa), "average wait"], [F.pct(r.occ, 0), "agents busy", "occ"]];
     k.push(r.sim ? [F.pct(r.abandon, 1), "callers who hang up", "abandon"] : [F.pct(r.pWait, 0), "callers who wait at all", "pwait"]);
@@ -231,7 +233,7 @@
     need("dClose", Number($("dClose").value) > Number($("dOpen").value), "Pick a closing hour after the opening hour.");
     var dc = ok ? dayCalls() : null;
     if (dc && dc.err) { fieldError("dPaste", dc.err); ok = false; } else fieldError("dPaste", "");
-    if (!ok) { $("dTitle").textContent = "Check the highlighted inputs"; $("dBody").textContent = ""; $("dKpis").innerHTML = ""; $("dChecks").innerHTML = ""; return; }
+    if (!ok) { $("dTitle").textContent = "Check the highlighted inputs"; $("dBody").textContent = ""; $("dKpis").innerHTML = ""; $("dChecks").innerHTML = ""; $("dayHeat").innerHTML = ""; $("heatTotals").textContent = ""; return; }
     var aht = num("dAht"), T = num("dSec") / 60, level = num("dPct") / 100, sh = num("dShrink") / 100, cap = (num("occCap") || 90) / 100;
     var plan = Staffing.dayPlan(dc.calls, 60, aht, T, level, cap, sh, num("dMin"));
     plan.hours = dc.hours; lastDay = plan;
@@ -260,6 +262,16 @@
     });
     $("dTable").innerHTML = "<thead><tr><th>Hour</th><th class=\"num\">Calls</th><th class=\"num\">Agents</th><th class=\"num\">Schedule</th><th class=\"num\">Within target</th><th class=\"num\">Avg wait</th></tr></thead><tbody>" +
       plan.rows.map(function (r, i) { return "<tr><td>" + fmtH(dc.hours[i]) + "</td><td class=\"num\">" + Math.round(r.calls) + "</td><td class=\"num\">" + r.c + "</td><td class=\"num\">" + r.sched + "</td><td class=\"num\">" + F.pct(r.sl, 0) + "</td><td class=\"num\">" + (r.calls ? secs(r.asa) : "–") + "</td></tr>"; }).join("") + "</tbody>";
+    renderHeat(plan, dc, cost);
+  }
+  /* Heatmap: one cell per open hour, tinted by that hour's occupancy
+   * (r.occ from dayPlan — the same computed values as the table). */
+  function renderHeat(plan, dc, cost) {
+    $("heatTotals").textContent = "Day totals: " + Math.round(plan.agentHours) + " agent-hours on the phones · " + Math.round(plan.paidHours) + " paid hours" + (cost ? " · " + F.money(plan.paidHours * cost) + " at " + F.money(cost) + " an hour" : "") + " · peak " + plan.peak.c + " agents.";
+    $("dayHeat").innerHTML = plan.rows.map(function (r, i) {
+      var band = r.occ < 0.65 ? "b0" : r.occ < 0.8 ? "b1" : r.occ < 0.9 ? "b2" : "b3";
+      return '<div class="heat-cell ' + band + '" title="' + fmtH(dc.hours[i]) + ": " + r.c + " agents, " + F.pct(r.occ, 0) + " busy, " + F.pct(r.sl, 0) + ' within target"><span class="hc-h">' + fmtH(dc.hours[i]) + '</span><span class="hc-c">' + r.c + "</span></div>";
+    }).join("");
   }
   function fmtH(h) { return (h < 10 ? "0" : "") + h + ":00"; }
   $("dLink").addEventListener("click", function () { Tool.copy(location.href, $("dToast"), "Link copied."); });
