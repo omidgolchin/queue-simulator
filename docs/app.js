@@ -2,6 +2,10 @@
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
+  /* Live regions (the verdict title) are written only when their text
+   * changes, so a screen reader does not announce an unchanged verdict
+   * again after every pause in typing. */
+  var setLive = function (el, s) { s = String(s); if (el.textContent !== s) el.textContent = s; };
   var F = Tool.fmt;
   function openDetails(id) { var d = document.getElementById(id); if (d && d.tagName === "DETAILS") { d.open = true; d.scrollIntoView({ block: "start" }); var su = d.querySelector("summary"); if (su) su.focus(); } }
   document.querySelectorAll("a.open-details").forEach(function (a) { a.addEventListener("click", function (e) { e.preventDefault(); openDetails(a.getAttribute("href").slice(1)); }); });
@@ -107,7 +111,7 @@
       ? "Agents are also kept under " + capNow + "% busy (change it under Settings)."
       : "Agents are also kept under a busy-time cap, set under Settings; it needs a value from 50 to 100.")
       + " If that cap needs more agents than the target does, the verdict says so.";
-    if (!v) { $("vTitle").textContent = "Check the highlighted inputs"; $("vBody").textContent = ""; $("kpis").innerHTML = ""; $("checks").innerHTML = ""; $("verdict").className = "panel verdict v-neutral"; $("bigNum").textContent = "–"; $("bigDetail").textContent = "Check the highlighted inputs above."; return; }
+    if (!v) { setLive($("vTitle"), "Check the highlighted inputs"); $("vBody").textContent = ""; $("kpis").innerHTML = ""; $("checks").innerHTML = ""; $("verdict").className = "panel verdict v-neutral"; $("bigNum").textContent = "–"; $("bigDetail").textContent = "Check the highlighted inputs above."; return; }
     var lam = v.calls / 60, T = v.tSec / 60, level = v.tPct / 100, cap = v.occCap / 100, sh = v.shrink / 100;
 
     var e = Staffing.staffErlang(lam, v.aht, T, level, cap);
@@ -140,7 +144,7 @@
     if (r.binding === "occupancy") body += " The service target alone needs " + (r.sim ? r.sim.cService : r.erlang.cService) + "; the extra agents keep everyone under " + v.occCap + "% busy.";
     if (r.sim) body += " Callers hang up after about " + v.patience + " minutes, so this comes from simulation; about " + F.pct(r.abandon, 1) + " of callers hang up. " + (r.c !== r.erlang.c ? "The formula, which assumes nobody hangs up, would say " + r.erlang.c + "." : "The formula agrees.");
     if (v.cost) body += " Cost: " + F.money(r.sched * v.cost) + " for the hour.";
-    $("vTitle").textContent = title; $("vBody").textContent = body; $("verdict").className = "panel verdict v-good";
+    setLive($("vTitle"), title); $("vBody").textContent = body; $("verdict").className = "panel verdict v-good";
     $("bigNum").textContent = r.c;
     $("bigDetail").textContent = "Schedule " + r.sched + " " + (r.sched === 1 ? "person" : "people") + " · " + F.pct(r.sl, 0) + " answered within " + v.tSec + " s · average wait " + secs(r.asa) + " · agents busy " + F.pct(r.occ, 0) + " of the time.";
     r.title = title; r.body = body;
@@ -242,14 +246,14 @@
     need("dClose", Number($("dClose").value) > Number($("dOpen").value), "Pick a closing hour after the opening hour.");
     var dc = ok ? dayCalls() : null;
     if (dc && dc.err) { fieldError("dPaste", dc.err); ok = false; } else fieldError("dPaste", "");
-    if (!ok) { $("dTitle").textContent = "Check the highlighted inputs"; $("dBody").textContent = ""; $("dKpis").innerHTML = ""; $("dChecks").innerHTML = ""; $("dayHeat").innerHTML = ""; $("heatTotals").textContent = ""; return; }
+    if (!ok) { setLive($("dTitle"), "Check the highlighted inputs"); $("dBody").textContent = ""; $("dKpis").innerHTML = ""; $("dChecks").innerHTML = ""; $("dayHeat").innerHTML = ""; $("heatTotals").textContent = ""; return; }
     var aht = num("dAht"), T = num("dSec") / 60, level = num("dPct") / 100, sh = num("dShrink") / 100, cap = (num("occCap") || 90) / 100;
     var plan = Staffing.dayPlan(dc.calls, 60, aht, T, level, cap, sh, num("dMin"));
     plan.hours = dc.hours; lastDay = plan;
     var peakC = plan.peak.c, peakHours = plan.rows.filter(function (r) { return r.c === peakC; }).map(function (r) { return dc.hours[r.i]; });
     var span = peakHours.length ? fmtH(peakHours[0]) + "–" + fmtH(peakHours[peakHours.length - 1] + 1) : "";
     var cost = num("dCost");
-    $("dTitle").textContent = "Peak: " + peakC + " agents, " + span;
+    setLive($("dTitle"), "Peak: " + peakC + " agents, " + span);
     $("dBody").textContent = "Across the day: " + Math.round(plan.agentHours) + " agent-hours on the phones and " + Math.round(plan.paidHours) + " paid hours after " + num("dShrink") + "% shrinkage" + (cost ? " (" + F.money(plan.paidHours * cost) + " at " + F.money(cost) + " an hour)" : "") + ". Expected: " + F.pct(plan.daySL, 0) + " of the day's " + F.int(plan.totalCalls) + " calls answered within " + num("dSec") + " seconds. Agents are kept under " + Math.round(cap * 100) + "% busy (the cap set under Settings in Plan one hour). The day plan assumes callers do not hang up, which is slightly generous; if yours do, check the busiest hour in Plan one hour with a patience time.";
     var flat = Staffing.staffErlang(plan.totalCalls / dc.hours.length / 60, aht, T, level, cap).c;
     var peakLam = Math.max.apply(null, dc.calls) / 60, slFlat = Staffing.erlangMetrics(peakLam, aht, flat, T).sl;

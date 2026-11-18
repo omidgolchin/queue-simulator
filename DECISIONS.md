@@ -127,3 +127,14 @@ checkpoints; log and continue.)
 - With callers who hang up, the recommendation comes from simulation of the M/M/c+M queue (memoryless, so simulated as a Markov chain with FIFO customers; 20 runs of 8 h after 1 h warm-up, common random numbers across agent counts). Hung-up calls count as missed in the service level. Checked against the SimPy simulator in tests.
 - The live animation uses the same chain (the v1 animation engine was replaced; its counters did not match the simulator).
 - Day plan: Erlang C per hour (standard interval staffing), minimum agents per hour, shrinkage, CSV export. It ignores hang-ups and says so.
+
+## 2026-11-18: what a screen reader announces
+
+- Only the verdict title is announced. The whole verdict panel used to
+  be one `aria-live` region, and its KPI tiles and checks are rewritten
+  on every run, so a screen reader read them all again after each pause
+  in typing. Now the title alone carries `aria-live="polite"` and
+  `aria-atomic="true"`: a changed verdict is announced in full, and the
+  KPIs and checks stay on the page for the reader to move to. The title
+  is written only when its text changes, so an unchanged verdict is not
+  read out again.

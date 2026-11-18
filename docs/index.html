@@ -93,9 +93,9 @@
       <div class="live-stats" id="liveStats"></div>
     </section>
 
-        <section class="panel verdict" id="verdict" aria-live="polite" style="margin-top:16px">
+        <section class="panel verdict" id="verdict" style="margin-top:16px">
           <p class="v-kicker">Recommendation in full</p>
-          <p class="v-title" id="vTitle">…</p>
+          <p class="v-title" id="vTitle" aria-live="polite" aria-atomic="true">…</p>
           <p class="v-body" id="vBody"></p>
           <div class="kpis" id="kpis"></div>
           <div class="checks" id="checks"></div>
@@ -159,9 +159,9 @@ occupancy = a / c</div>
           <div class="field"><label for="dCost">Cost of one paid hour <span class="muted">(optional)</span></label><div class="input-wrap"><input id="dCost" type="number" min="0" step="any" placeholder="e.g. 28"><span class="unit">$</span></div><div class="hint">What one paid hour costs, to price the whole day. Leave empty to skip.</div></div>
         </div>
       </form>
-        <section class="panel verdict v-accent" id="dVerdict" aria-live="polite" style="margin-top:16px">
+        <section class="panel verdict v-accent" id="dVerdict" style="margin-top:16px">
           <p class="v-kicker">Day plan</p>
-          <p class="v-title" id="dTitle">…</p>
+          <p class="v-title" id="dTitle" aria-live="polite" aria-atomic="true">…</p>
           <p class="v-body" id="dBody"></p>
           <div class="kpis" id="dKpis"></div>
           <div class="checks" id="dChecks"></div>
