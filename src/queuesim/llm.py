@@ -3,10 +3,9 @@
 Design rules, shared with the other projects in this portfolio:
 
 * The API key comes from the environment variable TOGETHER_API_KEY (a
-  git-ignored local .env file is allowed). Inside Muse, a credential
-  surrogate for the connected Together account is used instead: the
-  surrogate is not the real key; Muse's egress layer swaps in the real
-  key for api.together.xyz. The key is never printed or logged.
+  git-ignored local .env file is allowed). Where a credential helper is configured (CREDENTIAL_HELPER_DIR),
+  it can supply a surrogate key instead, which that environment's proxy
+  exchanges for the real key. The key is never printed or logged.
 * Runs are resumable: a run's ID is (model, scenario_id, mode); IDs
   already in the output file are skipped.
 * Every call records the model ID returned, the seed, the temperature,
@@ -48,7 +47,9 @@ _FORMAT_HINTS = {
 def _surrogate_key() -> str | None:
     import sys
 
-    bin_dir = "/opt/muse/skills/custom-connector-setup/bin"
+    bin_dir = os.environ.get("CREDENTIAL_HELPER_DIR", "")
+    if not bin_dir:
+        return None
     try:
         if bin_dir not in sys.path:
             sys.path.insert(0, bin_dir)
